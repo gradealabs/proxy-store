@@ -6,10 +6,10 @@ Proxy Store allows you to store data in an object to be used across components i
 
 The following example shows how to read `items` from a memory-backed store, and how to modify `items`.
 
-When `items` is modified in the store, any component wrapped with `withMemoryStorage` will attempt to update (given constraints set out in `shouldComponentUpdate`).
+When `items` is modified in the store, any component wrapped with `withMemoryStore` will attempt to update (given constraints set out in `shouldComponentUpdate`).
 
     import React from 'react'
-    import { withMemoryStorage } from 'proxy-store'
+    import { withMemoryStore } from 'proxy-store'
 
     class Widget extends React.PureComponent {
       render () {
@@ -27,7 +27,7 @@ When `items` is modified in the store, any component wrapped with `withMemorySto
       }
     }
 
-    export default withMemoryStorage(store => {
+    export default withMemoryStore(store => {
       return {
         items: store.items || []
       }
@@ -43,9 +43,9 @@ There are other HOC helpers available that are backed by different storage mecha
 
 For example:
 
-- If you want the store to be cleared after a refresh, use the memory store (`withMemoryStorage` for example).
-- If you want the store to survive a page refresh, use a session store (`withSessionStorage` for example).
-- If you want the store to survive a session (closing browser, etc), use a local store (`withLocalStorage` for example).
+- If you want the store to be cleared after a refresh, use the memory store (`withMemoryStore` for example).
+- If you want the store to survive a page refresh, use a session store (`withSessionStore` for example).
+- If you want the store to survive a session (closing browser, etc), use a local store (`withLocalStore` for example).
 
 ### `mapStoreToValues` vs `mapStoreToMethods`
 
@@ -55,7 +55,7 @@ You could technically define functions in `mapStoreToValues`, but inline functio
 
 ### Custom store
 
-`withMemoryStorage` uses an instance of `MemoryStorage` (which shares much of the same API as `window.localStorage` and `window.sessionStorage`), and as such, anytime `withMemoryStorage` is used in your application, it is using the same store instance across the board.
+`withMemoryStore` uses an instance of `MemoryStorage` (which shares much of the same API as `window.localStorage` and `window.sessionStorage`), and as such, anytime `withMemoryStore` is used in your application, it is using the same store instance across the board.
 
 Here is an example of how to create your own HOC that uses a different instance:
 
@@ -79,23 +79,23 @@ Here is an example of how to create your own HOC that uses a different instance:
 
 ## API
 
-### `withMemoryStorage`
+### `withMemoryStore`
 
-    withMemoryStorage(
+    withMemoryStore(
       mapStoreToValues: function,
       ?mapStoreToMethods: function
     )(Component: ReactClass)
 
-### `withSessionStorage`
+### `withSessionStore`
 
-    withSessionStorage(
+    withSessionStore(
       mapStoreToValues: function,
       ?mapStoreToMethods: function
     )(Component: ReactClass)
 
-### `withLocalStorage`
+### `withLocalStore`
 
-    withLocalStorage(
+    withLocalStore(
       mapStoreToValues: function,
       ?mapStoreToMethods: function
     )(Component: ReactClass)
