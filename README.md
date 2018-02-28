@@ -47,6 +47,12 @@ For example:
 - If you want the store to survive a page refresh, use a session store (`withSessionStorage` for example).
 - If you want the store to survive a session (closing browser, etc), use a local store (`withLocalStorage` for example).
 
+### `mapStoreToValues` vs `mapStoreToMethods`
+
+The difference between `mapStoreToValues` and `mapStoreToMethods` is that `mapStoreToValues` is mandatory and is used to inject props into the target component that could cause a re-render if different in a pure component, while `mapStoreToMethods` is used to inject props into the target component, but only on mount, so that new values don't cause a re-render in a pure component.
+
+You could technically define functions in `mapStoreToValues`, but inline functions created within `mapStoreToValues` will cause re-renders in a pure component.
+
 ### Custom store
 
 `withMemoryStorage` uses an instance of `MemoryStorage` (which shares much of the same API as `window.localStorage` and `window.sessionStorage`), and as such, anytime `withMemoryStorage` is used in your application, it is using the same store instance across the board.
@@ -70,12 +76,6 @@ Here is an example of how to create your own HOC that uses a different instance:
     export default function withCustomStorage (mapStoreToValues, mapStoreToMethods) {
       return createConnect(mapStoreToValues, mapStoreToMethods, customStore)
     }
-
-### `mapStoreToValues` vs `mapStoreToMethods`
-
-The difference between `mapStoreToValues` and `mapStoreToMethods` is that `mapStoreToValues` is mandatory and is used to inject props into the target component that could cause a re-render if different in a pure component, while `mapStoreToMethods` is used to inject props into the target component, but only on mount, so that new values don't cause a re-render in a pure component.
-
-You could technically define functions in `mapStoreToValues`, but inline functions created within `mapStoreToValues` will cause re-renders in a pure component.
 
 ## API
 
