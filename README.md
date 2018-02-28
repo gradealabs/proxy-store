@@ -34,7 +34,7 @@ When `items` is modified in the store, any component wrapped with `withMemorySto
     }, store => {
       return {
         addItem: (value) => {
-          store.items = [ ...store.items || [], value ] // important to make a copy
+          store.items = [ ...store.items || [], value ] // important to make a copy when using PureComponent
         }
       }
     })(Widget)
