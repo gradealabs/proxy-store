@@ -59,9 +59,11 @@ For example:
 
 The difference between `mapStoreToValues` and `mapStoreToMethods` is that
 `mapStoreToValues` is mandatory and is used to inject props into the target
-component that will cause a re-render in a pure component, while
+component that could cause a re-render if different in a pure component, while
 `mapStoreToMethods` is used to inject props into the target component, but only
-on mount. You could technically define functions in `mapStoreToValues`, but
+on mount, so that new values don't cause a re-render in a pure component.
+
+You could technically define functions in `mapStoreToValues`, but
 inline functions created within `mapStoreToValues` will cause re-renders in a
 pure component.
 
