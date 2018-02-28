@@ -21,7 +21,7 @@ will take place wherever `withMemoryStorage` is also being used as an HOC.
         <div>
           <h1>Random numbers:</h1>
           <ul>
-            {items.map(({ id, label }) => <li key={id}>{label}</li>)}
+            {items.map((value, index) => <li key={index}>{value}</li>)}
           </ul>
           <button onClick={() => addItem(Math.random())}>Add random number</button>
         </div>
