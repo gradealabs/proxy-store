@@ -45,6 +45,8 @@ For example:
 
 #### `withItems.js`
 
+    import { withMemoryStore } from 'proxy-store'
+
     export default function () {
       return withMemoryStore(store => {
         return {
