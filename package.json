@@ -3,14 +3,31 @@
   "version": "1.0.0",
   "description": "Proxy-based store with HOC helpers",
   "main": "index.js",
+  "directories": {
+    "lib": "lib"
+  },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "tsc -p tsconfig.json",
+    "prepare": "npm run build",
+    "test": "NODE_ENV=test TS_NODE_PROJECT=./tsconfig.test.json nyc mocha"
+  },
+  "peerDpendencies": {
+    "react": "^16.2.0"
+  },
+  "devDependencies": {
+    "@types/react": "^16.0.38",
+    "@types/mocha": "^2.2.48",
+    "typescript": "^2.7.2",
+    "react": "^16.2.0",
+    "mocha": "^5.0.1",
+    "nyc": "^11.4.1",
+    "ts-node": "^5.0.0"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/gradealabs/proxy-store.git"
   },
-  "author": "Mathieu Bouchard",
+  "author": "Mathieu Bouchard <mbouchard@gradealabs.com>",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/gradealabs/proxy-store/issues"
