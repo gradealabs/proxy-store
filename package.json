@@ -9,7 +9,8 @@
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "prepare": "npm run build",
-    "test": "NODE_ENV=test TS_NODE_PROJECT=./tsconfig.test.json nyc mocha"
+    "test": "NODE_ENV=test TS_NODE_PROJECT=./tsconfig.test.json nyc mocha",
+    "audit": "npm outdated --long"
   },
   "peerDpendencies": {
     "react": "^16.2.0"
@@ -20,7 +21,7 @@
     "typescript": "^2.7.2",
     "react": "^16.2.0",
     "mocha": "^5.0.1",
-    "nyc": "^11.4.1",
+    "nyc": "^11.5.0",
     "ts-node": "^5.0.0"
   },
   "repository": {
