@@ -36,7 +36,7 @@ will take place wherever `withMemoryStorage` is also being used as an HOC.
     }, store => {
       return {
         addItem: (value) => {
-          store.items = [ ...store.items, value ] // important to make a copy
+          store.items = [ ...store.items || [], value ] // important to make a copy
         }
       }
     })(Widget)
@@ -55,13 +55,15 @@ For example:
 - If you want the store to survive a session (closing browser, etc), use a
   local store (`withLocalStorage` for example).
 
+### `mapStoreToValues` vs `mapStoreToMethods`
+
 The difference between `mapStoreToValues` and `mapStoreToMethods` is that
 `mapStoreToValues` is mandatory and is used to inject props into the target
-component that should cause a re-render when changed, while `mapStoreToMethods`
-is used to inject props into the target component but only once, so returning
-a new function won't cause a re-render. You could technically define functions
-in `mapStoreToValues`, but functions created within `mapStoreToValues`
-will cause re-renders in a pure component.
+component that will cause a re-render in a pure component, while
+`mapStoreToMethods` is used to inject props into the target component, but only
+on mount. You could technically define functions in `mapStoreToValues`, but
+inline functions created within `mapStoreToValues` will cause re-renders in a
+pure component.
 
 ## API
 
