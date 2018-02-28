@@ -8,17 +8,19 @@ export default function createConnect (mapStoreToValues, mapStoreToMethods, stor
       constructor (props, context) {
         super(props, context)
 
-        snapshot = Object.assign({},
+        snapshot = Object.assign(
+          {},
           snapshot,
           mapStoreToValues(store, props),
-          mapStoreToMethods(store, props)
+          mapStoreToMethods ? mapStoreToMethods(store, props) : {}
         )
       }
 
       componentWillMount () {
         const { props } = this
         this.sub = store.subscribe(() => {
-          snapshot = Object.assign({},
+          snapshot = Object.assign(
+            {},
             snapshot,
             mapStoreToValues(store, this.props)
           )
@@ -27,7 +29,8 @@ export default function createConnect (mapStoreToValues, mapStoreToMethods, stor
       }
 
       componentWillUpdate () {
-        snapshot = Object.assign({},
+        snapshot = Object.assign(
+          {},
           snapshot,
           mapStoreToValues(store, this.props)
         )
