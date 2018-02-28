@@ -10,36 +10,36 @@ The following example shows how to read `items` from a memory-backed store,
 and how to modify it. When `items` is modified in the store, a re-rendering
 will take place wherever `withMemoryStorage` is also being used as an HOC.
 
-  import React from 'react'
-  import { withMemoryStorage } from 'proxy-store'
+    import React from 'react'
+    import { withMemoryStorage } from 'proxy-store'
 
-  class Widget extends React.Component {
-    render () {
-      const { items, addItem } = this.props
+    class Widget extends React.Component {
+      render () {
+        const { items, addItem } = this.props
 
-      return (
-        <div>
-          <h1>Random numbers:</h1>
-          <ul>
-            {items.map((value, index) => <li key={index}>{value}</li>)}
-          </ul>
-          <button onClick={() => addItem(Math.random())}>Add random number</button>
-        </div>
-      )
-    }
-  }
-
-  export default withMemoryStorage(store => {
-    return {
-      items: store.items || []
-    }
-  }, store => {
-    return {
-      addItem: (value) => {
-        store.items = [ ...store.items, value ] // important to make a copy
+        return (
+          <div>
+            <h1>Random numbers:</h1>
+            <ul>
+              {items.map((value, index) => <li key={index}>{value}</li>)}
+            </ul>
+            <button onClick={() => addItem(Math.random())}>Add random number</button>
+          </div>
+        )
       }
     }
-  })(Widget)
+
+    export default withMemoryStorage(store => {
+      return {
+        items: store.items || []
+      }
+    }, store => {
+      return {
+        addItem: (value) => {
+          store.items = [ ...store.items, value ] // important to make a copy
+        }
+      }
+    })(Widget)
 
 There are other HOC helpers available that are backed by different storage
 mechanisms. Along with the standard memory-store, there is also support for
