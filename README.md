@@ -55,26 +55,36 @@ For example:
 - If you want the store to survive a session (closing browser, etc), use a
   local store (`withLocalStorage` for example).
 
+The difference between `mapStoreToValues` and `mapStoreToMethods` is that
+`mapStoreToValues` is mandatory and is used to inject props into the target
+component that should cause a re-render when changed, while `mapStoreToMethods`
+is used to inject props into the target component but only once, so returning
+a new function won't cause a re-render. You could technically define functions
+in `mapStoreToValues`, but functions created within `mapStoreToValues`
+will cause re-renders in a pure component.
+
 ## API
 
-### withMemoryStorage
+### `withMemoryStorage`
 
-  withMemoryStorage(
-    mapStoreToValues: function,
-    ?mapStoreToMethods: function
-  )(Component: ReactClass)
+    withMemoryStorage(
+      mapStoreToValues: function,
+      ?mapStoreToMethods: function
+    )(Component: ReactClass)
 
-### withSessionStorage
+### `withSessionStorage`
 
-  withSessionStorage(
-    mapStoreToProps: function
-  )(Component: ReactClass)
+    withSessionStorage(
+      mapStoreToValues: function,
+      ?mapStoreToMethods: function
+    )(Component: ReactClass)
 
-### withLocalStorage
+### `withLocalStorage`
 
-  withLocalStorage(
-    mapStoreToProps: function
-  )(Component: ReactClass)
+    withLocalStorage(
+      mapStoreToValues: function,
+      ?mapStoreToMethods: function
+    )(Component: ReactClass)
 
 ## Building
 
