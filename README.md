@@ -39,15 +39,46 @@ When `items` is modified in the store, any component wrapped with `withMemorySto
       }
     })(Widget)
 
-There are other HOC helpers available that are backed by different storage mechanisms. Along with the standard memory-store, there is also support for localStorage and sessionStorage. You can use the one that is most suitable to the type of persistance you need.
+We don't encourage the exact set-up above -- we recommend that you encapsulate your custom HOC into its own named HOC, which gives you the benefit of re-use and an alternative to a schema.
 
 For example:
+
+#### `withItems.js`
+
+    export default function () {
+      return withMemoryStore(store => {
+        return {
+          items: store.items || []
+        }
+      }, store => {
+        return {
+          addItem: (value) => {
+            store.items = [ ...store.items || [], value ] // important to make a copy when using PureComponent
+          }
+        }
+      })
+    }
+
+Usage in the example above:
+
+    ...
+    import withItems from './withItems'
+
+    class Widget extends React.PureComponent {
+      ...
+    }
+
+    export default withItems()(Widget)
+
+### Alternative storage engines
+
+There are other HOC helpers available that are backed by different storage engines. Along with the standard memory store, there is also support for localStorage and sessionStorage. You can use the one that is most suitable to the type of persistance you need:
 
 - If you want the store to be cleared after a refresh, use the memory store (`withMemoryStore` for example).
 - If you want the store to survive a page refresh, use a session store (`withSessionStore` for example).
 - If you want the store to survive a session (closing browser, etc), use a local store (`withLocalStore` for example).
 
-### `mapStoreToValues` vs `mapStoreToMethods`
+### mapStoreToValues vs mapStoreToMethods
 
 The difference between `mapStoreToValues` and `mapStoreToMethods` is that `mapStoreToValues` is mandatory and is used to inject props into the target component that could cause a re-render if different in a pure component, while `mapStoreToMethods` is used to inject props into the target component, but only on mount, so that new values don't cause a re-render in a pure component.
 
