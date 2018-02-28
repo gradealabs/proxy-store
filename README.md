@@ -90,14 +90,27 @@ There are other HOC helpers available that are backed by different storage engin
 
 `withMemoryStore` uses an instance of `MemoryStorage` (which shares much of the same API as `window.localStorage` and `window.sessionStorage`), and as such, anytime `withMemoryStore` is used in your application, it is using the same store instance across the board.
 
-Here is an example of how to create your own HOC that uses a different instance:
+Here is an example of how to create your own HOC that uses its own storage engine. It is almost the same as the memory store implemented in this library:
 
 #### `customStore.js`
 
-    import { createStore, MemoryStorage } from 'proxy-store'
+    import { createStore } from 'proxy-store'
 
-    const storageEngine = new MemoryStorage() // the storageEngine API requires `setItem`, `getItem`, and `removeItem`
-    const store = createStore(storageEngine)
+    // the storageEngine API requires `setItem`, `getItem`, and `removeItem`
+    const myStorageEngine = {
+      data: {},
+      setItem (key, value) {
+        this.data[key] = value
+      },
+      getItem (key) {
+        return this.data[key]
+      },
+      removeItem (key) {
+        delete this.data[key]
+      }
+    }
+
+    const store = createStore(myStorageEngine)
 
     export default store
 
@@ -106,7 +119,7 @@ Here is an example of how to create your own HOC that uses a different instance:
     import { createConnect } from 'proxy-store'
     import customStore from './customStore'
 
-    export default function withCustomStorage (mapStoreToValues, mapStoreToMethods) {
+    export default function withCustomStore (mapStoreToValues, mapStoreToMethods) {
       return createConnect(mapStoreToValues, mapStoreToMethods, customStore)
     }
 
