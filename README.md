@@ -123,6 +123,82 @@ Here is an example of how to create your own HOC that uses its own storage engin
       return createConnect(mapStoreToValues, mapStoreToMethods, customStore)
     }
 
+### Async store
+
+Asynchronous stores are supported via `createAsyncStore`. The store will be initially empty, but a `$pending` flag will be available on the store so that you can choose to show a spinner during the initial load of the store.
+
+Below is an example of a custom async store that leverages React Native's `AsyncStorage`:
+
+#### `asyncStore.js`
+
+    import { createAsyncStore } from 'proxy-store'
+    import { AsyncStorage } from 'react-native'
+
+    class AsyncStorageAdapter {
+      async setItem (key, value) {
+        return await AsyncStorage.setItem(key, value)
+      }
+
+      async getItem (key) {
+        return await AsyncStorage.getItem(key)
+      }
+
+      async removeItem (key) {
+        return await AsyncStorage.removeItem(key)
+      }
+    }
+
+    const store = createStore(new AsyncStorageAdapter())
+
+    export default store
+
+#### `withAsyncStore.js`
+
+    import { createConnect } from 'proxy-store'
+    import asyncStore from './asyncStore'
+
+    export default function withAsyncStore (mapStoreToValues, mapStoreToMethods) {
+      return createConnect(mapStoreToValues, mapStoreToMethods, asyncStore)
+    }
+
+#### `Widget.js`
+
+    import React from 'react'
+    import withAsyncStore from './withAsyncStore'
+
+    class Widget extends React.PureComponent {
+      render () {
+        const { loading, items, addItem } = this.props
+
+        if (loading) {
+          return <div>Loading...</div>
+        }
+
+        return (
+          <div>
+            <h1>Random numbers:</h1>
+            <ul>
+              {items.map((value, index) => <li key={index}>{value}</li>)}
+            </ul>
+            <button onClick={() => addItem(Math.random())}>Add random number</button>
+          </div>
+        )
+      }
+    }
+
+    export default withAsyncStore(store => {
+      return {
+        loading: store.$pending || false,
+        items: store.items || []
+      }
+    }, store => {
+      return {
+        addItem: (value) => {
+          store.items = [ ...store.items || [], value ] // important to make a copy when using PureComponent
+        }
+      }
+    })(Widget)
+
 ## API
 
 ### `withMemoryStore`

@@ -1,4 +1,5 @@
 module.exports = {
+  createAsyncStore: require('./lib/createAsyncStore').default,
   createConnect: require('./lib/createConnect').default,
   createStore: require('./lib/createStore').default,
   MemoryStorage: require('./lib/MemoryStorage').default,

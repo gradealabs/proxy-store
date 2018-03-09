@@ -1,12 +1,13 @@
-export default function createStore (storageEngine = null) {
+export default function createAsyncStore (asyncStorageEngine = null) {
   let subscribers = []
+  let store = {}
 
-  const retrievePersistedStore = () => {
-    if (!storageEngine) {
+  const retrievePersistedStore = async () => {
+    if (!asyncStorageEngine) {
       return
     }
 
-    let payload = storageEngine.getItem('store')
+    let payload = await asyncStorageEngine.getItem('store')
 
     try {
       return JSON.parse(payload)
@@ -15,8 +16,8 @@ export default function createStore (storageEngine = null) {
     }
   }
 
-  const persistStore = () => {
-    if (!storageEngine) {
+  const persistStore = async () => {
+    if (!asyncStorageEngine) {
       return
     }
 
@@ -28,7 +29,7 @@ export default function createStore (storageEngine = null) {
       payload = null
     }
 
-    return storageEngine.setItem('store', payload)
+    return await asyncStorageEngine.setItem('store', payload)
   }
 
   const publish = (target, key, value) => {
@@ -52,9 +53,26 @@ export default function createStore (storageEngine = null) {
     }
   }
 
-  let store = retrievePersistedStore() || {}
+  let storePending = false
 
-  // Expose specific methods on the store
+  Object.defineProperty(store, '$pending', {
+    enumerable: false,
+    configurable: false,
+    writable: false,
+    get: () => storePending
+  })
+
+  retrievePersistedStore().then((persistedStore = {}) => {
+    store = Object.assign(store, persistedStore)
+    storePending = true
+
+    Object.keys(persistedStore).forEach(key => {
+      publish(proxiedStore, key, persistedStore[key])
+    })
+
+    publish(proxiedStore, '$pending', storePending)
+  })
+
   Object.defineProperty(store, 'subscribe', {
     enumerable: false,
     configurable: false,
@@ -64,7 +82,7 @@ export default function createStore (storageEngine = null) {
     }
   })
 
-  return new Proxy(store, {
+  const proxiedStore = new Proxy(store, {
     set (target, key, value) {
       let changed = JSON.stringify(value) !== JSON.stringify(target[key])
       target[key] = value
@@ -87,4 +105,6 @@ export default function createStore (storageEngine = null) {
       return false
     }
   })
+
+  return proxiedStore
 }
