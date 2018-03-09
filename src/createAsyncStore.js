@@ -53,7 +53,7 @@ export default function createAsyncStore (asyncStorageEngine = null) {
     }
   }
 
-  let storePending = false
+  let storePending = true
 
   Object.defineProperty(store, '$pending', {
     enumerable: true,
@@ -63,7 +63,7 @@ export default function createAsyncStore (asyncStorageEngine = null) {
 
   retrievePersistedStore().then((persistedStore) => {
     persistedStore = persistedStore || {}
-    storePending = true
+    storePending = false
     Object.assign(proxiedStore, persistedStore)
     publish(proxiedStore, '$pending', storePending)
   })
