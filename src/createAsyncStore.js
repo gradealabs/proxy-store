@@ -58,11 +58,12 @@ export default function createAsyncStore (asyncStorageEngine = null) {
   Object.defineProperty(store, '$pending', {
     enumerable: false,
     configurable: false,
-    writable: false,
     get: () => storePending
   })
 
-  retrievePersistedStore().then((persistedStore = {}) => {
+  retrievePersistedStore().then((persistedStore) => {
+    persistedStore = persistedStore || {}
+
     store = Object.assign(store, persistedStore)
     storePending = true
 

@@ -148,7 +148,7 @@ Below is an example of a custom async store that leverages React Native's `Async
       }
     }
 
-    const store = createStore(new AsyncStorageAdapter())
+    const store = createAsyncStore(new AsyncStorageAdapter())
 
     export default store
 
