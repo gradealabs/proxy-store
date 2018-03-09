@@ -66,6 +66,7 @@ export default function createAsyncStore (asyncStorageEngine = null) {
     persistedStore = persistedStore || {}
     storePending = false
     Object.assign(proxiedStore, persistedStore)
+    publish(proxiedStore, '$pending', storePending)
   })
 
   Object.defineProperty(store, 'subscribe', {
