@@ -64,8 +64,9 @@ export default function createAsyncStore (asyncStorageEngine = null) {
 
   retrievePersistedStore().then(persistedStore => {
     persistedStore = persistedStore || {}
+    const { $pending, ...persistedStoreClean } = persistedStore
+    Object.assign(proxiedStore, persistedStoreClean)
     storePending = false
-    Object.assign(proxiedStore, persistedStore)
     publish(proxiedStore, '$pending', storePending)
   })
 
