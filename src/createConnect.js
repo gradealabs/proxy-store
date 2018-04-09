@@ -1,6 +1,6 @@
 import * as React from 'react'
 
-export default function createConnect (mapStoreToValues, mapStoreToMethods, store) {
+export default function createConnect (mapStoreToValues, store) {
   return function (Component) {
     let snapshot = {}
 
@@ -11,9 +11,16 @@ export default function createConnect (mapStoreToValues, mapStoreToMethods, stor
         snapshot = Object.assign(
           {},
           snapshot,
-          mapStoreToValues(store, props),
-          mapStoreToMethods ? mapStoreToMethods(store, props) : {}
+          mapStoreToValues(store, props)
         )
+      }
+
+      omitFunctions (obj) {
+        let cleanObj = {}
+        Object.keys(obj)
+          .filter(key => typeof obj[key] !== 'function')
+          .forEach(key => (cleanObj[key] = obj[key]))
+        return cleanObj
       }
 
       componentWillMount () {
@@ -22,7 +29,7 @@ export default function createConnect (mapStoreToValues, mapStoreToMethods, stor
           snapshot = Object.assign(
             {},
             snapshot,
-            mapStoreToValues(store, this.props)
+            this.omitFunctions(mapStoreToValues(store, this.props))
           )
           this.forceUpdate()
         })
@@ -32,7 +39,7 @@ export default function createConnect (mapStoreToValues, mapStoreToMethods, stor
         snapshot = Object.assign(
           {},
           snapshot,
-          mapStoreToValues(store, this.props)
+          this.omitFunctions(mapStoreToValues(store, this.props))
         )
       }
 

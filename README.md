@@ -1,4 +1,4 @@
-# Proxy Store
+# Proxy Store 2.0.0
 
 Proxy Store allows you to store data in an object to be used across components in a similar way to Redux but without the ceremony. The store is completely ad-hoc and you are meant to map the store object to props when used.
 
@@ -8,36 +8,35 @@ The following example shows how to read `items` from a memory-backed store, and 
 
 When `items` is modified in the store, any component wrapped with `withMemoryStore` will attempt to update (given constraints set out in `shouldComponentUpdate`).
 
-    import React from 'react'
-    import { withMemoryStore } from 'proxy-store'
+```javascript
+import React from 'react'
+import { withMemoryStore } from 'proxy-store'
 
-    class Widget extends React.PureComponent {
-      render () {
-        const { items, addItem } = this.props
+class Widget extends React.PureComponent {
+  render () {
+    const { items, addItem } = this.props
 
-        return (
-          <div>
-            <h1>Random numbers:</h1>
-            <ul>
-              {items.map((value, index) => <li key={index}>{value}</li>)}
-            </ul>
-            <button onClick={() => addItem(Math.random())}>Add random number</button>
-          </div>
-        )
-      }
+    return (
+      <div>
+        <h1>Random numbers:</h1>
+        <ul>
+          {items.map((value, index) => <li key={index}>{value}</li>)}
+        </ul>
+        <button onClick={() => addItem(Math.random())}>Add random number</button>
+      </div>
+    )
+  }
+}
+
+export default withMemoryStore(store => {
+  return {
+    items: store.get('items') || [],
+    addItem: (value) => {
+      store.items.set([ ...store.items || [], value ]) // important to make a copy when using PureComponent
     }
-
-    export default withMemoryStore(store => {
-      return {
-        items: store.items || []
-      }
-    }, store => {
-      return {
-        addItem: (value) => {
-          store.items = [ ...store.items || [], value ] // important to make a copy when using PureComponent
-        }
-      }
-    })(Widget)
+  }
+})(Widget)
+```
 
 We don't encourage the exact set-up above -- we recommend that you encapsulate your custom HOC into its own named HOC, which gives you the benefit of re-use and an alternative to a schema.
 
@@ -45,38 +44,33 @@ For example:
 
 #### `withItems.js`
 
-    import { withMemoryStore } from 'proxy-store'
+```javascript
+import { withMemoryStore } from 'proxy-store'
 
-    export default function () {
-      return withMemoryStore(store => {
-        return {
-          items: store.items || []
-        }
-      }, store => {
-        return {
-          addItem: (value) => {
-            store.items = [ ...store.items || [], value ] // important to make a copy when using PureComponent
-          }
-        }
-      })
+export default function () {
+  return withMemoryStore(store => {
+    return {
+      items: store.get('items') || [],
+      addItem: (value) => {
+        store.items.set([ ...store.items || [], value ]) // important to make a copy when using PureComponent
+      }
     }
+  })
+}
+```
 
 Usage in the example above:
 
-    ...
-    import withItems from './withItems'
+```javascript
+...
+import withItems from './withItems'
 
-    class Widget extends React.PureComponent {
-      ...
-    }
+class Widget extends React.PureComponent {
+  ...
+}
 
-    export default withItems()(Widget)
-
-### mapStoreToValues vs mapStoreToMethods
-
-The difference between `mapStoreToValues` and `mapStoreToMethods` is that `mapStoreToValues` is mandatory and is used to inject props into the target component that could cause a re-render if different in a pure component, while `mapStoreToMethods` is used to inject props into the target component, but only on mount, so that new values don't cause a re-render in a pure component.
-
-You could technically define functions in `mapStoreToValues`, but inline functions created within `mapStoreToValues` will cause re-renders in a pure component.
+export default withItems()(Widget)
+```
 
 ### Alternative storage engines
 
@@ -94,132 +88,136 @@ Here is an example of how to create your own HOC that uses its own storage engin
 
 #### `customStore.js`
 
-    import { createStore } from 'proxy-store'
+```javascript
+import { createStore } from 'proxy-store'
 
-    // the storageEngine API requires `setItem`, `getItem`, and `removeItem`
-    const myStorageEngine = {
-      data: {},
-      setItem (key, value) {
-        this.data[key] = value
-      },
-      getItem (key) {
-        return this.data[key]
-      },
-      removeItem (key) {
-        delete this.data[key]
-      }
-    }
+// the storageEngine API requires `setItem`, `getItem`, and `removeItem`
+const myStorageEngine = {
+  data: {},
+  setItem (key, value) {
+    this.data[key] = value
+  },
+  getItem (key) {
+    return this.data[key]
+  },
+  removeItem (key) {
+    delete this.data[key]
+  }
+}
 
-    const store = createStore(myStorageEngine)
+const store = createStore(myStorageEngine)
 
-    export default store
+export default store
+```
 
 #### `withCustomStore.js`
 
-    import { createConnect } from 'proxy-store'
-    import customStore from './customStore'
+```javascript
+import { createConnect } from 'proxy-store'
+import customStore from './customStore'
 
-    export default function withCustomStore (mapStoreToValues, mapStoreToMethods) {
-      return createConnect(mapStoreToValues, mapStoreToMethods, customStore)
-    }
+export default function withCustomStore (mapStoreToValues) {
+  return createConnect(mapStoreToValues, customStore)
+}
+```
 
 ### Async store
 
-Asynchronous stores are supported via `createAsyncStore`. The store will be initially empty, but a `$pending` flag will be available on the store so that you can choose to show a spinner during the initial load of the store.
+Asynchronous stores are supported via `createAsyncStore`. The store will be initially empty, but a `pending()` function will be available on the store so that you can choose to show a spinner during the initial load of the store.
 
 Below is an example of a custom async store that leverages React Native's `AsyncStorage`:
 
 #### `asyncStore.js`
 
-    import { createAsyncStore } from 'proxy-store'
-    import { AsyncStorage } from 'react-native'
+```javascript
+import { createAsyncStore } from 'proxy-store'
+import { AsyncStorage } from 'react-native'
 
-    class AsyncStorageAdapter {
-      async setItem (key, value) {
-        return await AsyncStorage.setItem(key, value)
-      }
+class AsyncStorageAdapter {
+  async setItem (key, value) {
+    return await AsyncStorage.setItem(key, value)
+  }
 
-      async getItem (key) {
-        return await AsyncStorage.getItem(key)
-      }
+  async getItem (key) {
+    return await AsyncStorage.getItem(key)
+  }
 
-      async removeItem (key) {
-        return await AsyncStorage.removeItem(key)
-      }
-    }
+  async removeItem (key) {
+    return await AsyncStorage.removeItem(key)
+  }
+}
 
-    const store = createAsyncStore(new AsyncStorageAdapter())
+const store = createAsyncStore(new AsyncStorageAdapter())
 
-    export default store
+export default store
+```
 
 #### `withAsyncStore.js`
 
-    import { createConnect } from 'proxy-store'
-    import asyncStore from './asyncStore'
+```javascript
+import { createConnect } from 'proxy-store'
+import asyncStore from './asyncStore'
 
-    export default function withAsyncStore (mapStoreToValues, mapStoreToMethods) {
-      return createConnect(mapStoreToValues, mapStoreToMethods, asyncStore)
-    }
+export default function withAsyncStore (mapStoreToValues) {
+  return createConnect(mapStoreToValues, asyncStore)
+}
+```
 
 #### `Widget.js`
 
-    import React from 'react'
-    import withAsyncStore from './withAsyncStore'
+```javascript
+import React from 'react'
+import withAsyncStore from './withAsyncStore'
 
-    class Widget extends React.PureComponent {
-      render () {
-        const { loading, items, addItem } = this.props
+class Widget extends React.PureComponent {
+  render () {
+    const { loading, items, addItem } = this.props
 
-        if (loading) {
-          return <div>Loading...</div>
-        }
-
-        return (
-          <div>
-            <h1>Random numbers:</h1>
-            <ul>
-              {items.map((value, index) => <li key={index}>{value}</li>)}
-            </ul>
-            <button onClick={() => addItem(Math.random())}>Add random number</button>
-          </div>
-        )
-      }
+    if (loading) {
+      return <div>Loading...</div>
     }
 
-    export default withAsyncStore(store => {
-      return {
-        loading: store.$pending || false,
-        items: store.items || []
-      }
-    }, store => {
-      return {
-        addItem: (value) => {
-          store.items = [ ...store.items || [], value ] // important to make a copy when using PureComponent
-        }
-      }
-    })(Widget)
+    return (
+      <div>
+        <h1>Random numbers:</h1>
+        <ul>
+          {items.map((value, index) => <li key={index}>{value}</li>)}
+        </ul>
+        <button onClick={() => addItem(Math.random())}>Add random number</button>
+      </div>
+    )
+  }
+}
+
+export default withAsyncStore(store => {
+  return {
+    loading: store.pending() || false,
+    items: store.get('items') || [],
+    addItem: (value) => {
+      store.set('items', [ ...store.items || [], value ]) // important to make a copy when using PureComponent
+    }
+  }
+})(Widget)
+```
 
 ## API
 
 ### `withMemoryStore`
 
     withMemoryStore(
-      mapStoreToValues: function,
-      ?mapStoreToMethods: function
+      mapStoreToValues: function
     )(Component: ReactClass)
 
 ### `withSessionStore`
 
     withSessionStore(
-      mapStoreToValues: function,
-      ?mapStoreToMethods: function
+      mapStoreToValues: function
     )(Component: ReactClass)
 
 ### `withLocalStore`
 
     withLocalStore(
-      mapStoreToValues: function,
-      ?mapStoreToMethods: function
+      mapStoreToValues: function
     )(Component: ReactClass)
 
 ## Building

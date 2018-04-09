@@ -1,6 +1,5 @@
 export default function createAsyncStore (asyncStorageEngine = null) {
   let subscribers = []
-  let store = {}
 
   const retrievePersistedStore = async () => {
     if (!asyncStorageEngine) {
@@ -16,7 +15,7 @@ export default function createAsyncStore (asyncStorageEngine = null) {
     }
   }
 
-  const persistStore = async () => {
+  const persistStore = async store => {
     if (!asyncStorageEngine) {
       return
     }
@@ -32,76 +31,62 @@ export default function createAsyncStore (asyncStorageEngine = null) {
     return await asyncStorageEngine.setItem('store', payload)
   }
 
-  const publish = (target, key, value) => {
+  const publish = (key, value) => {
     subscribers.forEach(fn => {
       if (fn) {
-        fn(target, key, value)
+        fn(key, value)
       }
     })
   }
 
-  // Provide a subscribe method on the store that will notify the provided callback
-  // with the target object that will be changed (set/del) along with key and value.
-  // Returns an object (handle) with a dispose method that should be called to
-  // unsubscribe.
-  const subscribe = (fn) => {
-    var n = subscribers.push(fn)
-    return {
-      dispose () {
-        subscribers[n - 1] = null
-      }
-    }
-  }
-
   let storePending = true
-
-  Object.defineProperty(store, '$pending', {
-    enumerable: true,
-    configurable: false,
-    get: () => storePending,
-    set: () => {}
-  })
+  let store = {}
 
   retrievePersistedStore().then(persistedStore => {
-    persistedStore = persistedStore || {}
-    const { $pending, ...persistedStoreClean } = persistedStore
-    Object.assign(proxiedStore, persistedStoreClean)
+    Object.assign(store, persistedStore || {})
     storePending = false
-    publish(proxiedStore, '$pending', storePending)
+    publish('$pending', storePending)
   })
 
-  Object.defineProperty(store, 'subscribe', {
-    enumerable: false,
-    configurable: false,
-    writable: false,
-    value: function (fn) {
-      return subscribe(fn)
-    }
-  })
-
-  const proxiedStore = new Proxy(store, {
-    set (target, key, value) {
-      let changed = JSON.stringify(value) !== JSON.stringify(target[key])
-      target[key] = value
-      if (changed) {
-        persistStore()
-        publish(target, key, value)
-      }
-      return true
+  return {
+    pending () {
+      return storePending
     },
-    get (target, key) {
-      return target[key]
+    set (key, value) {
+      const changed = JSON.stringify(value) !== JSON.stringify(store[key])
+      if (changed) {
+        store[key] = value
+        persistStore(store)
+        publish(key, value)
+      }
+      return store
+    },
+    get (key) {
+      return store[key]
     },
     deleteProperty (target, key) {
       if (key in target) {
-        delete target[key]
-        persistStore()
-        publish(target, key, undefined)
-        return true
+        delete store[key]
+        persistStore(store)
+        publish(key, undefined)
+        return store
       }
-      return false
+      return store
+    },
+    /**
+     * Provide a subscribe method on the store that will notify the provided
+     * callback with the target object that will be changed (set/del) along
+     * with key and value.
+     * Returns an object (handle) with a dispose method that should be called
+     * to unsubscribe.
+     */
+    subscribe (fn) {
+      var n = subscribers.push(fn)
+      return {
+        dispose () {
+          subscribers[n - 1] = null
+        }
+      }
     }
-  })
-
-  return proxiedStore
+  }
 }

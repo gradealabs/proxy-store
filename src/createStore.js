@@ -15,7 +15,7 @@ export default function createStore (storageEngine = null) {
     }
   }
 
-  const persistStore = () => {
+  const persistStore = store => {
     if (!storageEngine) {
       return
     }
@@ -31,60 +31,52 @@ export default function createStore (storageEngine = null) {
     return storageEngine.setItem('store', payload)
   }
 
-  const publish = (target, key, value) => {
+  const publish = (key, value) => {
     subscribers.forEach(fn => {
       if (fn) {
-        fn(target, key, value)
+        fn(key, value)
       }
     })
   }
 
-  // Provide a subscribe method on the store that will notify the provided callback
-  // with the target object that will be changed (set/del) along with key and value.
-  // Returns an object (handle) with a dispose method that should be called to
-  // unsubscribe.
-  const subscribe = (fn) => {
-    var n = subscribers.push(fn)
-    return {
-      dispose () {
-        subscribers[n - 1] = null
-      }
-    }
-  }
-
   let store = retrievePersistedStore() || {}
 
-  // Expose specific methods on the store
-  Object.defineProperty(store, 'subscribe', {
-    enumerable: false,
-    configurable: false,
-    writable: false,
-    value: function (fn) {
-      return subscribe(fn)
-    }
-  })
-
-  return new Proxy(store, {
-    set (target, key, value) {
-      let changed = JSON.stringify(value) !== JSON.stringify(target[key])
-      target[key] = value
+  return {
+    set (key, value) {
+      const changed = JSON.stringify(value) !== JSON.stringify(store[key])
       if (changed) {
-        persistStore()
-        publish(target, key, value)
+        store[key] = value
+        persistStore(store)
+        publish(key, value)
       }
-      return true
+      return store
     },
-    get (target, key) {
-      return target[key]
+    get (key) {
+      return store[key]
     },
     deleteProperty (target, key) {
       if (key in target) {
-        delete target[key]
-        persistStore()
-        publish(target, key, undefined)
-        return true
+        delete store[key]
+        persistStore(store)
+        publish(key, undefined)
+        return store
       }
-      return false
+      return store
+    },
+    /**
+     * Provide a subscribe method on the store that will notify the provided
+     * callback with the target object that will be changed (set/del) along
+     * with key and value.
+     * Returns an object (handle) with a dispose method that should be called
+     * to unsubscribe.
+     */
+    subscribe (fn) {
+      var n = subscribers.push(fn)
+      return {
+        dispose () {
+          subscribers[n - 1] = null
+        }
+      }
     }
-  })
+  }
 }
