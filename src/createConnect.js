@@ -23,7 +23,7 @@ export default function createConnect (mapStoreToValues, store) {
         return cleanObj
       }
 
-      componentWillMount () {
+      componentDidMount () {
         const { props } = this
         this.sub = store.subscribe(() => {
           snapshot = Object.assign(
@@ -35,7 +35,7 @@ export default function createConnect (mapStoreToValues, store) {
         })
       }
 
-      componentWillUpdate () {
+      componentDidUpdate () {
         snapshot = Object.assign(
           {},
           snapshot,
