@@ -1,5 +1,5 @@
 {
-  "name": "proxy-store",
+  "name": "@gradealabs/proxy-store",
   "version": "2.0.0",
   "description": "Proxy-based store with HOC helpers",
   "main": "index.js",
