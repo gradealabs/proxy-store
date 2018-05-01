@@ -10,7 +10,7 @@ When `items` is modified in the store, any component wrapped with `withMemorySto
 
 ```javascript
 import React from 'react'
-import { withMemoryStore } from 'proxy-store'
+import { withMemoryStore } from '@gradealabs/proxy-store'
 
 class Widget extends React.PureComponent {
   render () {
@@ -45,7 +45,7 @@ For example:
 #### `withItems.js`
 
 ```javascript
-import { withMemoryStore } from 'proxy-store'
+import { withMemoryStore } from '@gradealabs/proxy-store'
 
 export default function () {
   return withMemoryStore(store => {
@@ -89,7 +89,7 @@ Here is an example of how to create your own HOC that uses its own storage engin
 #### `customStore.js`
 
 ```javascript
-import { createStore } from 'proxy-store'
+import { createStore } from '@gradealabs/proxy-store'
 
 // the storageEngine API requires `setItem`, `getItem`, and `removeItem`
 const myStorageEngine = {
@@ -113,7 +113,7 @@ export default store
 #### `withCustomStore.js`
 
 ```javascript
-import { createConnect } from 'proxy-store'
+import { createConnect } from '@gradealabs/proxy-store'
 import customStore from './customStore'
 
 export default function withCustomStore (mapStoreToValues) {
@@ -130,7 +130,7 @@ Below is an example of a custom async store that leverages React Native's `Async
 #### `asyncStore.js`
 
 ```javascript
-import { createAsyncStore } from 'proxy-store'
+import { createAsyncStore } from '@gradealabs/proxy-store'
 import { AsyncStorage } from 'react-native'
 
 class AsyncStorageAdapter {
@@ -155,7 +155,7 @@ export default store
 #### `withAsyncStore.js`
 
 ```javascript
-import { createConnect } from 'proxy-store'
+import { createConnect } from '@gradealabs/proxy-store'
 import asyncStore from './asyncStore'
 
 export default function withAsyncStore (mapStoreToValues) {
