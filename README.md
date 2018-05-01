@@ -1,4 +1,4 @@
-# Proxy Store 2.0.0
+# Proxy Store 2.0.1
 
 Proxy Store allows you to store data in an object to be used across components in a similar way to Redux but without the ceremony. The store is completely ad-hoc and you are meant to map the store object to props when used.
 
