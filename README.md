@@ -31,8 +31,8 @@ class Widget extends React.PureComponent {
 export default withMemoryStore(store => {
   return {
     items: store.get('items') || [],
-    addItem: (value) => {
-      store.items.set([ ...store.items || [], value ]) // important to make a copy when using PureComponent
+    addItem: value => {
+      store.set('items', [ ...store.get('items') || [], value ]) // important to make a copy when using PureComponent
     }
   }
 })(Widget)
@@ -51,8 +51,8 @@ export default function () {
   return withMemoryStore(store => {
     return {
       items: store.get('items') || [],
-      addItem: (value) => {
-        store.items.set([ ...store.items || [], value ]) // important to make a copy when using PureComponent
+      addItem: value => {
+        store.set('items', [ ...store.get('items') || [], value ]) // important to make a copy when using PureComponent
       }
     }
   })
@@ -193,8 +193,8 @@ export default withAsyncStore(store => {
   return {
     loading: store.pending() || false,
     items: store.get('items') || [],
-    addItem: (value) => {
-      store.set('items', [ ...store.items || [], value ]) // important to make a copy when using PureComponent
+    addItem: value => {
+      store.set('items', [ ...store.get('items') || [], value ]) // important to make a copy when using PureComponent
     }
   }
 })(Widget)
