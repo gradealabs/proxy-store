@@ -28,8 +28,8 @@
     "type": "git",
     "url": "git+https://github.com/gradealabs/proxy-store.git"
   },
-  "author": "Mathieu Bouchard <mbouchard@gradealabs.com>",
-  "license": "ISC",
+  "author": "Grade A Labs Inc.",
+  "license": "BSD-3-Clause",
   "bugs": {
     "url": "https://github.com/gradealabs/proxy-store/issues"
   },
