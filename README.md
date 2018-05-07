@@ -134,16 +134,16 @@ import { createAsyncStore } from '@gradealabs/proxy-store'
 import { AsyncStorage } from 'react-native'
 
 class AsyncStorageAdapter {
-  async setItem (key, value) {
-    return await AsyncStorage.setItem(key, value)
+  setItem (key, value) {
+    return AsyncStorage.setItem(key, value)
   }
 
-  async getItem (key) {
-    return await AsyncStorage.getItem(key)
+  getItem (key) {
+    return AsyncStorage.getItem(key)
   }
 
-  async removeItem (key) {
-    return await AsyncStorage.removeItem(key)
+  removeItem (key) {
+    return AsyncStorage.removeItem(key)
   }
 }
 
