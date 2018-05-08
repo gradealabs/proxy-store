@@ -45,29 +45,29 @@ describe('createConnect', function () {
   })
 
   describe('integration', function () {
-    // it('test', function () {
-    //   const storageEngine = makeStorageEngine()
-    //   const store = createStore(storageEngine)
+    it('test', function () {
+      const storageEngine = makeStorageEngine()
+      const store = createStore(storageEngine)
 
-    //   class Widget extends React.PureComponent {
-    //     render () {
-    //       const { items, addItem } = this.props
-    //     }
-    //   }
+      class Widget extends React.PureComponent {
+        render () {
+          const { items, addItem } = this.props
+        }
+      }
 
-    //   const mapStoreToValues = store => {
-    //     return {
-    //       items: store.get('items') || [],
-    //       addItem: value => {
-    //         store.set('items', [ ...store.get('items') || [], value ])
-    //       }
-    //     }
-    //   }
+      const mapStoreToValues = store => {
+        return {
+          items: store.get('items') || [],
+          addItem: value => {
+            store.set('items', [ ...store.get('items') || [], value ])
+          }
+        }
+      }
 
-    //   const connect = createConnect(mapStoreToValues, store)
-    //   const Component = connect(Widget)
+      // const connect = createConnect(mapStoreToValues, store)
+      // const Component = connect(Widget)
 
-    //   const wrapper = Enzyme.shallow(<Component />)
-    // })
+      // const wrapper = Enzyme.shallow(<Component />)
+    })
   })
 })
