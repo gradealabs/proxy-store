@@ -64,8 +64,8 @@ export default function createAsyncStore (asyncStorageEngine = null) {
     get (key) {
       return store[key]
     },
-    deleteProperty (target, key) {
-      if (key in target) {
+    deleteProperty (key) {
+      if (key in store) {
         delete store[key]
         persistStore(store)
         publish(key, undefined)
