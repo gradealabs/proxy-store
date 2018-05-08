@@ -34,9 +34,7 @@ describe('createStore', function () {
       assert.deepStrictEqual(store, storeCopy)
     })
 
-    it('should return undefined without a storageEngine', function () {
-      const store = { test: 1 }
-      assert.strictEqual(persistStore(null, store), undefined)
+    it('retrieve should return undefined without a storageEngine', function () {
       assert.strictEqual(retrievePersistedStore(null), undefined)
     })
   })
@@ -103,7 +101,6 @@ describe('createStore', function () {
         assert.fail('should not have published unchanged value')
       })
       store.set('test', 1)
-      assert.strictEqual(storageEngine.getItem('store'), JSON.stringify({ test: 1 }))
       subSpy.dispose()
     })
 

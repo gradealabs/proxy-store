@@ -1,51 +1,50 @@
+export const retrievePersistedStore = async (asyncStorageEngine) => {
+  if (!asyncStorageEngine) {
+    return
+  }
+
+  let payload = await asyncStorageEngine.getItem('store')
+
+  try {
+    return JSON.parse(payload)
+  } catch (e) {
+    return null
+  }
+}
+
+export const persistStore = async (asyncStorageEngine, store) => {
+  if (!asyncStorageEngine) {
+    return
+  }
+
+  let payload
+
+  try {
+    payload = JSON.stringify(store)
+  } catch (e) {
+    payload = null
+  }
+
+  return await asyncStorageEngine.setItem('store', payload)
+}
+
+export const publish = (subscribers, key, value) => {
+  subscribers.forEach(fn => {
+    if (fn && typeof fn === 'function') {
+      fn(key, value)
+    }
+  })
+}
+
 export default function createAsyncStore (asyncStorageEngine = null) {
   let subscribers = []
-
-  const retrievePersistedStore = async () => {
-    if (!asyncStorageEngine) {
-      return
-    }
-
-    let payload = await asyncStorageEngine.getItem('store')
-
-    try {
-      return JSON.parse(payload)
-    } catch (e) {
-      return null
-    }
-  }
-
-  const persistStore = async store => {
-    if (!asyncStorageEngine) {
-      return
-    }
-
-    let payload
-
-    try {
-      payload = JSON.stringify(store)
-    } catch (e) {
-      payload = null
-    }
-
-    return await asyncStorageEngine.setItem('store', payload)
-  }
-
-  const publish = (key, value) => {
-    subscribers.forEach(fn => {
-      if (fn) {
-        fn(key, value)
-      }
-    })
-  }
-
   let storePending = true
   let store = {}
 
-  retrievePersistedStore().then(persistedStore => {
+  retrievePersistedStore(asyncStorageEngine).then(persistedStore => {
     Object.assign(store, persistedStore || {})
     storePending = false
-    publish('$pending', storePending)
+    publish(subscribers, '$pending', storePending)
   })
 
   return {
@@ -56,8 +55,8 @@ export default function createAsyncStore (asyncStorageEngine = null) {
       const changed = JSON.stringify(value) !== JSON.stringify(store[key])
       if (changed) {
         store[key] = value
-        persistStore(store)
-        publish(key, value)
+        persistStore(asyncStorageEngine, store)
+        publish(subscribers, key, value)
       }
       return store
     },
@@ -67,8 +66,8 @@ export default function createAsyncStore (asyncStorageEngine = null) {
     deleteProperty (key) {
       if (key in store) {
         delete store[key]
-        persistStore(store)
-        publish(key, undefined)
+        persistStore(asyncStorageEngine, store)
+        publish(subscribers, key, undefined)
         return store
       }
       return store
