@@ -16,7 +16,7 @@ const makeAsyncStorageEngine = () => {
 }
 
 describe('createAsyncStore', function () {
-  describe('persistance', function () {
+  describe('persistence', function () {
     it('should write as json stringified', function (done) {
       const asyncStorageEngine = makeAsyncStorageEngine()
       const store = { test: 1 }

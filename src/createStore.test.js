@@ -16,7 +16,7 @@ const makeStorageEngine = () => {
 }
 
 describe('createStore', function () {
-  describe('persistance', function () {
+  describe('persistence', function () {
     it('should write as json stringified', function () {
       const storageEngine = makeStorageEngine()
       const store = { test: 1 }
