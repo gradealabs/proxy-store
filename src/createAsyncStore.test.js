@@ -3,8 +3,7 @@ const assert = require('assert')
 const {
   default: createAsyncStore,
   persistStore,
-  retrievePersistedStore,
-  publish
+  retrievePersistedStore
 } = require('./createAsyncStore')
 
 const makeAsyncStorageEngine = () => {
@@ -44,22 +43,14 @@ describe('createAsyncStore', function () {
     })
   })
 
-  describe('publish', function () {
-    it('should execute each function with key, value in subscribers', function () {
-      let counter = 0
+  describe('subscribe', function () {
+    it('should throw if a non-function is passed to subscribe', function () {
+      const asyncStorageEngine = makeAsyncStorageEngine()
+      const store = createAsyncStore(asyncStorageEngine)
 
-      const subscribers = [
-        0,
-        true,
-        (a, b) => counter = counter + (a * 1) + (b * 1),  // 5
-        (a, b) => counter = counter + (a * 2) + (b * 2),  // 10
-        undefined,
-        (a, b) => counter = counter + (a * 3) + (b * 3),   // 15
-        null
-      ]
-
-      publish(subscribers, 2, 3)
-      assert.strictEqual(counter, 30)
+      assert.throws(function () {
+        store.subscribe('this is not a function')
+      })
     })
   })
 
@@ -117,7 +108,6 @@ describe('createAsyncStore', function () {
     })
 
     it('should create a store that can set and publish only if changed', function (done) {
-      // TODO: check for changes on objects
       const asyncStorageEngine = makeAsyncStorageEngine()
       const store = createAsyncStore(asyncStorageEngine)
       let subSpy = null

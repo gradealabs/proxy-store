@@ -1,4 +1,4 @@
-import * as React from 'react'
+import React from 'react'
 
 export const omitFunctions = (obj) => {
   let cleanObj = {}
@@ -9,7 +9,7 @@ export const omitFunctions = (obj) => {
 }
 
 export default function createConnect (mapStoreToValues, store) {
-  return function (Component) {
+  return function connect (Component) {
     let snapshot = {}
 
     return class extends React.Component {

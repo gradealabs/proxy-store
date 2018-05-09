@@ -1,4 +1,5 @@
 import EJSON from 'ejson'
+import publish from './publish'
 
 export const retrievePersistedStore = storageEngine => {
   if (!storageEngine) {
@@ -30,27 +31,38 @@ export const persistStore = (storageEngine, store) => {
   return storageEngine.setItem('store', payload)
 }
 
-export const publish = (subscribers, key, value) => {
-  subscribers.forEach(fn => {
-    if (fn && typeof fn === 'function') {
-      fn(key, value)
-    }
-  })
+export const queue = (publishQueue, key, value) => {
+  publishQueue.push({ key, value })
 }
 
 export default function createStore (storageEngine = null) {
-  let subscribers = []
+  let subscribers = {}
+  let subId = 0
+  let onChangeTimeout = null
+  let publishQueue = []
   let store = retrievePersistedStore(storageEngine) || {}
+
+  const onChange = () => {
+    persistStore(storageEngine, store)
+
+    while (publishQueue.length) {
+      const { key, value } = publishQueue.shift()
+      publish(subscribers, key, value)
+    }
+  }
 
   return {
     set (key, value) {
       const changed = value !== store[key]
+
       if (changed) {
         store[key] = value
-        // TODO: debounce persist and publish
-        persistStore(storageEngine, store)
-        publish(subscribers, key, value)
+
+        publishQueue.push({ key, value })
+        clearTimeout(onChangeTimeout)
+        onChangeTimeout = setTimeout(onChange, 0)
       }
+
       return store
     },
     get (key) {
@@ -59,10 +71,12 @@ export default function createStore (storageEngine = null) {
     deleteProperty (key) {
       if (key in store) {
         delete store[key]
-        // TODO: debounce persist and publish
-        persistStore(storageEngine, store)
-        publish(subscribers, key, undefined)
+
+        publishQueue.push({ key, value: undefined })
+        clearTimeout(onChangeTimeout)
+        onChangeTimeout = setTimeout(onChange, 0)
       }
+
       return store
     },
     /**
@@ -73,13 +87,16 @@ export default function createStore (storageEngine = null) {
      * to unsubscribe.
      */
     subscribe (fn) {
-      // TODO: use an object instead of an array, leverage a counter (like subId)
-      // and Object.keys(subscribers).map(parseInt).sort() to iterate in order.
-      // TODO: move check for function here, instead of when iterating
-      var n = subscribers.push(fn)
+      if (typeof fn !== 'function') {
+        throw new Error('subscribe expects a function as a parameter')
+      }
+
+      subId = subId + 1
+      subscribers[subId] = fn
+
       return {
         dispose () {
-          subscribers[n - 1] = null
+          delete subscribers[subId]
         }
       }
     }

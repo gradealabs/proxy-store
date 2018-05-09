@@ -3,8 +3,7 @@ const assert = require('assert')
 const {
   default: createStore,
   persistStore,
-  retrievePersistedStore,
-  publish
+  retrievePersistedStore
 } = require('./createStore')
 
 const makeStorageEngine = () => {
@@ -39,22 +38,14 @@ describe('createStore', function () {
     })
   })
 
-  describe('publish', function () {
-    it('should execute each function with key, value in subscribers', function () {
-      let counter = 0
+  describe('subscribe', function () {
+    it('should throw if a non-function is passed to subscribe', function () {
+      const storageEngine = makeStorageEngine()
+      const store = createStore(storageEngine)
 
-      const subscribers = [
-        0,
-        true,
-        (a, b) => counter = counter + (a * 1) + (b * 1),  // 5
-        (a, b) => counter = counter + (a * 2) + (b * 2),  // 10
-        undefined,
-        (a, b) => counter = counter + (a * 3) + (b * 3),   // 15
-        null
-      ]
-
-      publish(subscribers, 2, 3)
-      assert.strictEqual(counter, 30)
+      assert.throws(function () {
+        store.subscribe('this is not a function')
+      })
     })
   })
 
@@ -71,21 +62,21 @@ describe('createStore', function () {
       assert.strictEqual(store.get('test'), 1)
     })
 
-    it('should create a store that can set and publish', function () {
+    it('should create a store that can set and publish', function (done) {
       const storageEngine = makeStorageEngine()
       const store = createStore(storageEngine)
 
       store.subscribe((key, value) => {
         assert.strictEqual(key, 'test')
         assert.strictEqual(value, 1)
+        assert.strictEqual(storageEngine.getItem('store'), JSON.stringify({ test: 1 }))
+        done()
       })
 
       store.set('test', 1)
-      assert.strictEqual(storageEngine.getItem('store'), JSON.stringify({ test: 1 }))
     })
 
-    it('should create a store that can set and publish only if changed', function () {
-      // TODO: check for changes on objects
+    it('should create a store that can set and publish only if changed', function (done) {
       const storageEngine = makeStorageEngine()
       const store = createStore(storageEngine)
       let subSpy = null
@@ -93,30 +84,33 @@ describe('createStore', function () {
       subSpy = store.subscribe((key, value) => {
         assert.strictEqual(key, 'test')
         assert.strictEqual(value, 1)
-      })
-      store.set('test', 1)
-      assert.strictEqual(storageEngine.getItem('store'), JSON.stringify({ test: 1 }))
-      subSpy.dispose()
+        assert.strictEqual(storageEngine.getItem('store'), JSON.stringify({ test: 1 }))
+        subSpy.dispose()
 
-      subSpy = store.subscribe((key, value) => {
-        assert.fail('should not have published unchanged value')
+        subSpy = store.subscribe((key, value) => {
+          assert.fail('should not have published unchanged value')
+          subSpy.dispose()
+        })
+        store.set('test', 1)
+        setTimeout(done, 0) // give the subscription a chance to fire first
       })
       store.set('test', 1)
-      subSpy.dispose()
     })
 
-    it('should create a store that can delete and publish', function () {
+    it('should create a store that can delete and publish', function (done) {
       const storageEngine = makeStorageEngine()
       storageEngine.setItem('store', JSON.stringify({ test: 1, other: 2 }))
       const store = createStore(storageEngine)
+      let subSpy = null
 
-      store.subscribe((key, value) => {
+      subSpy = store.subscribe((key, value) => {
         assert.strictEqual(key, 'test')
         assert.strictEqual(value, undefined)
+        assert.strictEqual(storageEngine.getItem('store'), JSON.stringify({ other: 2 }))
+        subSpy.dispose()
+        done()
       })
-
       store.deleteProperty('test')
-      assert.strictEqual(storageEngine.getItem('store'), JSON.stringify({ other: 2 }))
     })
   })
 })

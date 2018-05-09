@@ -45,29 +45,55 @@ describe('createConnect', function () {
   })
 
   describe('integration', function () {
-    it('test', function () {
+    class Widget extends React.PureComponent {
+      render () {
+        const { items, addItem } = this.props
+        return (
+          <React.Fragment>
+            {items.map((item, key) => <div key={key}>{item}</div>)}
+          </React.Fragment>
+        )
+      }
+    }
+
+    const mapStoreToValues = store => {
+      return {
+        items: store.get('items') || [],
+        addItem: value => {
+          store.set('items', [ ...store.get('items') || [], value ])
+        }
+      }
+    }
+
+    it('should have no item divs', function (done) {
       const storageEngine = makeStorageEngine()
       const store = createStore(storageEngine)
-
-      class Widget extends React.PureComponent {
-        render () {
-          const { items, addItem } = this.props
-        }
-      }
-
-      const mapStoreToValues = store => {
-        return {
-          items: store.get('items') || [],
-          addItem: value => {
-            store.set('items', [ ...store.get('items') || [], value ])
-          }
-        }
-      }
 
       const connect = createConnect(mapStoreToValues, store)
       const Component = connect(Widget)
 
-      const wrapper = Enzyme.shallow(<Component />)
+      const wrapper = Enzyme.mount(<Component />)
+      setTimeout(function () {
+        wrapper.update()
+        assert.strictEqual(wrapper.find('div').length, 0)
+        done()
+      }, 0)
+    })
+
+    it('should have 1 item divs', function (done) {
+      const storageEngine = makeStorageEngine()
+      const store = createStore(storageEngine)
+
+      const connect = createConnect(mapStoreToValues, store)
+      const Component = connect(Widget)
+
+      const wrapper = Enzyme.mount(<Component />)
+      wrapper.childAt(0).props().addItem('test')
+      setTimeout(function () {
+        wrapper.update()
+        assert.strictEqual(wrapper.find('div').length, 1)
+        done()
+      }, 0)
     })
   })
 })

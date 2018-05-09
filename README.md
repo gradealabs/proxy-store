@@ -1,6 +1,6 @@
-# HOC Store 2.0.2
+# Store HOCs 2.0.2
 
-HOC Store allows you to store data in an object to be used across components in a similar way to Redux but without the ceremony. The store is completely ad-hoc and you are meant to map the store object to props when used.
+Store HOCs allows you to store data in an object to be used across components in a similar way to Redux but without the ceremony. The store is completely ad-hoc and you are meant to map the store object to props when used.
 
 ## Quick Start
 
@@ -148,6 +148,7 @@ class AsyncStorageAdapter {
 }
 
 const store = createAsyncStore(new AsyncStorageAdapter())
+// or simply: `const store = createAsyncStore(AsyncStorage)`, as AsyncStorage happens to have the required API
 
 export default store
 ```

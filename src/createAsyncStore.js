@@ -1,4 +1,5 @@
 import EJSON from 'ejson'
+import publish from './publish'
 
 export const retrievePersistedStore = async (asyncStorageEngine) => {
   if (!asyncStorageEngine) {
@@ -30,18 +31,22 @@ export const persistStore = async (asyncStorageEngine, store) => {
   return await asyncStorageEngine.setItem('store', payload)
 }
 
-export const publish = (subscribers, key, value) => {
-  subscribers.forEach(fn => {
-    if (fn && typeof fn === 'function') {
-      fn(key, value)
-    }
-  })
-}
-
 export default function createAsyncStore (asyncStorageEngine = null) {
-  let subscribers = []
+  let subscribers = {}
+  let subId = 0
   let storePending = true
+  let onChangeTimeout = null
+  let publishQueue = []
   let store = {}
+
+  const onChange = () => {
+    persistStore(asyncStorageEngine, store)
+
+    while (publishQueue.length) {
+      const { key, value } = publishQueue.shift()
+      publish(subscribers, key, value)
+    }
+  }
 
   retrievePersistedStore(asyncStorageEngine).then(persistedStore => {
     Object.assign(store, persistedStore || {})
@@ -55,11 +60,13 @@ export default function createAsyncStore (asyncStorageEngine = null) {
     },
     set (key, value) {
       const changed = value !== store[key]
+
       if (changed) {
         store[key] = value
-        // TODO: debounce persist and publish
-        persistStore(asyncStorageEngine, store)
-        publish(subscribers, key, value)
+
+        publishQueue.push({ key, value })
+        clearTimeout(onChangeTimeout)
+        onChangeTimeout = setTimeout(onChange, 0)
       }
       return store
     },
@@ -69,10 +76,12 @@ export default function createAsyncStore (asyncStorageEngine = null) {
     deleteProperty (key) {
       if (key in store) {
         delete store[key]
-        // TODO: debounce persist and publish
-        persistStore(asyncStorageEngine, store)
-        publish(subscribers, key, undefined)
+
+        publishQueue.push({ key, value: undefined })
+        clearTimeout(onChangeTimeout)
+        onChangeTimeout = setTimeout(onChange, 0)
       }
+
       return store
     },
     /**
@@ -83,13 +92,16 @@ export default function createAsyncStore (asyncStorageEngine = null) {
      * to unsubscribe.
      */
     subscribe (fn) {
-      // TODO: use an object instead of an array, leverage a counter (like subId)
-      // and Object.keys(subscribers).map(parseInt).sort() to iterate in order.
-      // TODO: move check for function here, instead of when iterating
-      var n = subscribers.push(fn)
+      if (typeof fn !== 'function') {
+        throw new Error('subscribe expects a function as a parameter')
+      }
+
+      subId = subId + 1
+      subscribers[subId] = fn
+
       return {
         dispose () {
-          subscribers[n - 1] = null
+          delete subscribers[subId]
         }
       }
     }

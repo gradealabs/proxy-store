@@ -9,16 +9,16 @@
   "scripts": {
     "build": "babel --plugins @babel/plugin-transform-modules-commonjs src --out-dir lib --ignore '**/*.test.js'",
     "prepare": "npm run build",
-    "test": "mocha --require @babel/register --require @babel/polyfill src/*.test.js"
+    "test": "mocha --require jsdom-setup.js --require @babel/register --require @babel/polyfill src/*.test.js"
   },
   "peerDependencies": {
     "react": "^16.2.0",
     "react-dom": "^16.2.0"
   },
   "devDependencies": {
-    "@babel/plugin-transform-modules-commonjs": "^7.0.0-beta.46",
     "@babel/cli": "^7.0.0-beta.46",
     "@babel/core": "^7.0.0-beta.46",
+    "@babel/plugin-transform-modules-commonjs": "^7.0.0-beta.46",
     "@babel/polyfill": "^7.0.0-beta.46",
     "@babel/preset-env": "^7.0.0-beta.46",
     "@babel/preset-es2015": "^7.0.0-beta.46",
@@ -27,6 +27,7 @@
     "@babel/register": "^7.0.0-beta.46",
     "enzyme": "^3.3.0",
     "enzyme-adapter-react-16": "^1.1.1",
+    "jsdom": "^11.10.0",
     "mocha": "^5.1.1",
     "react": "^16.2.0",
     "react-dom": "^16.2.0"
