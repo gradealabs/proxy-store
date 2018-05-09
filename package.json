@@ -40,5 +40,8 @@
   "bugs": {
     "url": "https://github.com/gradealabs/proxy-store/issues"
   },
-  "homepage": "https://github.com/gradealabs/proxy-store#readme"
+  "homepage": "https://github.com/gradealabs/proxy-store#readme",
+  "dependencies": {
+    "ejson": "^2.1.2"
+  }
 }

@@ -64,10 +64,10 @@ describe('createConnect', function () {
         }
       }
 
-      // const connect = createConnect(mapStoreToValues, store)
-      // const Component = connect(Widget)
+      const connect = createConnect(mapStoreToValues, store)
+      const Component = connect(Widget)
 
-      // const wrapper = Enzyme.shallow(<Component />)
+      const wrapper = Enzyme.shallow(<Component />)
     })
   })
 })

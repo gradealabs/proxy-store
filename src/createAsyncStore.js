@@ -1,3 +1,5 @@
+import EJSON from 'ejson'
+
 export const retrievePersistedStore = async (asyncStorageEngine) => {
   if (!asyncStorageEngine) {
     return
@@ -6,7 +8,7 @@ export const retrievePersistedStore = async (asyncStorageEngine) => {
   let payload = await asyncStorageEngine.getItem('store')
 
   try {
-    return JSON.parse(payload)
+    return EJSON.parse(payload)
   } catch (e) {
     return null
   }
@@ -20,7 +22,7 @@ export const persistStore = async (asyncStorageEngine, store) => {
   let payload
 
   try {
-    payload = JSON.stringify(store)
+    payload = EJSON.stringify(store)
   } catch (e) {
     payload = null
   }
@@ -52,9 +54,10 @@ export default function createAsyncStore (asyncStorageEngine = null) {
       return storePending
     },
     set (key, value) {
-      const changed = JSON.stringify(value) !== JSON.stringify(store[key])
+      const changed = value !== store[key]
       if (changed) {
         store[key] = value
+        // TODO: debounce persist and publish
         persistStore(asyncStorageEngine, store)
         publish(subscribers, key, value)
       }
@@ -66,9 +69,9 @@ export default function createAsyncStore (asyncStorageEngine = null) {
     deleteProperty (key) {
       if (key in store) {
         delete store[key]
+        // TODO: debounce persist and publish
         persistStore(asyncStorageEngine, store)
         publish(subscribers, key, undefined)
-        return store
       }
       return store
     },
@@ -80,6 +83,9 @@ export default function createAsyncStore (asyncStorageEngine = null) {
      * to unsubscribe.
      */
     subscribe (fn) {
+      // TODO: use an object instead of an array, leverage a counter (like subId)
+      // and Object.keys(subscribers).map(parseInt).sort() to iterate in order.
+      // TODO: move check for function here, instead of when iterating
       var n = subscribers.push(fn)
       return {
         dispose () {

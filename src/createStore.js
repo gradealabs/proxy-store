@@ -1,3 +1,5 @@
+import EJSON from 'ejson'
+
 export const retrievePersistedStore = storageEngine => {
   if (!storageEngine) {
     return
@@ -6,7 +8,7 @@ export const retrievePersistedStore = storageEngine => {
   let payload = storageEngine.getItem('store')
 
   try {
-    return JSON.parse(payload)
+    return EJSON.parse(payload)
   } catch (e) {
     return null
   }
@@ -20,7 +22,7 @@ export const persistStore = (storageEngine, store) => {
   let payload
 
   try {
-    payload = JSON.stringify(store)
+    payload = EJSON.stringify(store)
   } catch (e) {
     payload = null
   }
@@ -42,9 +44,10 @@ export default function createStore (storageEngine = null) {
 
   return {
     set (key, value) {
-      const changed = JSON.stringify(value) !== JSON.stringify(store[key])
+      const changed = value !== store[key]
       if (changed) {
         store[key] = value
+        // TODO: debounce persist and publish
         persistStore(storageEngine, store)
         publish(subscribers, key, value)
       }
@@ -56,9 +59,9 @@ export default function createStore (storageEngine = null) {
     deleteProperty (key) {
       if (key in store) {
         delete store[key]
+        // TODO: debounce persist and publish
         persistStore(storageEngine, store)
         publish(subscribers, key, undefined)
-        return store
       }
       return store
     },
@@ -70,6 +73,9 @@ export default function createStore (storageEngine = null) {
      * to unsubscribe.
      */
     subscribe (fn) {
+      // TODO: use an object instead of an array, leverage a counter (like subId)
+      // and Object.keys(subscribers).map(parseInt).sort() to iterate in order.
+      // TODO: move check for function here, instead of when iterating
       var n = subscribers.push(fn)
       return {
         dispose () {

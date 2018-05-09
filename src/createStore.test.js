@@ -85,6 +85,7 @@ describe('createStore', function () {
     })
 
     it('should create a store that can set and publish only if changed', function () {
+      // TODO: check for changes on objects
       const storageEngine = makeStorageEngine()
       const store = createStore(storageEngine)
       let subSpy = null

@@ -117,6 +117,7 @@ describe('createAsyncStore', function () {
     })
 
     it('should create a store that can set and publish only if changed', function (done) {
+      // TODO: check for changes on objects
       const asyncStorageEngine = makeAsyncStorageEngine()
       const store = createAsyncStore(asyncStorageEngine)
       let subSpy = null
