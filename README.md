@@ -148,9 +148,18 @@ class AsyncStorageAdapter {
 }
 
 const store = createAsyncStore(new AsyncStorageAdapter())
-// or simply: `const store = createAsyncStore(AsyncStorage)`, as AsyncStorage happens to have the required API
 
 export default store
+```
+
+Alternatively, since AsyncStorage already shares the correct API (setItem,
+getItem, and removeItem), we could replace `asyncStore.js` with:
+
+```javascript
+import { createAsyncStore } from '@gradealabs/store-hocs'
+import { AsyncStorage } from 'react-native'
+
+export default createAsyncStore(AsyncStorage)
 ```
 
 #### `withAsyncStore.js`
