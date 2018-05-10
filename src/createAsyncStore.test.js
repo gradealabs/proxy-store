@@ -58,8 +58,8 @@ describe('createAsyncStore', function () {
     it('should create a store without a asyncStorageEngine and .get without issue', function (done) {
       const store = createAsyncStore()
 
-      const pendingHandle = store.subscribe((key, value) => {
-        if (key === '$pending' && value === false) {
+      const pendingHandle = store.subscribe(() => {
+        if (!store.pending()) {
           pendingHandle.dispose()
 
           assert.strictEqual(store.get('test'), undefined)
@@ -74,8 +74,8 @@ describe('createAsyncStore', function () {
         .then(() => {
           const store = createAsyncStore(asyncStorageEngine)
 
-          const pendingHandle = store.subscribe((key, value) => {
-            if (key === '$pending' && value === false) {
+          const pendingHandle = store.subscribe(() => {
+            if (!store.pending()) {
               pendingHandle.dispose()
 
               assert.strictEqual(store.get('test'), 1)
@@ -89,14 +89,11 @@ describe('createAsyncStore', function () {
       const asyncStorageEngine = makeAsyncStorageEngine()
       const store = createAsyncStore(asyncStorageEngine)
 
-      const pendingHandle = store.subscribe((key, value) => {
-        if (key === '$pending' && value === false) {
+      const pendingHandle = store.subscribe(() => {
+        if (!store.pending()) {
           pendingHandle.dispose()
 
-          store.subscribe((key, value) => {
-            assert.strictEqual(key, 'test')
-            assert.strictEqual(value, 1)
-
+          store.subscribe(() => {
             asyncStorageEngine.getItem('store')
               .then(result => assert.strictEqual(result, JSON.stringify({ test: 1 })))
               .then(done, done)
@@ -112,19 +109,16 @@ describe('createAsyncStore', function () {
       const store = createAsyncStore(asyncStorageEngine)
       let subSpy = null
 
-      const pendingHandle = store.subscribe((key, value) => {
-        if (key === '$pending' && value === false) {
+      const pendingHandle = store.subscribe(() => {
+        if (!store.pending()) {
           pendingHandle.dispose()
 
-          subSpy = store.subscribe((key, value) => {
-            assert.strictEqual(key, 'test')
-            assert.strictEqual(value, 1)
-
+          subSpy = store.subscribe(() => {
             asyncStorageEngine.getItem('store')
               .then(result => assert.strictEqual(result, JSON.stringify({ test: 1 })))
               .then(() => subSpy.dispose())
               .then(() => {
-                subSpy = store.subscribe((key, value) => {
+                subSpy = store.subscribe(() => {
                   assert.fail('should not have published unchanged value')
                   subSpy.dispose()
                 })
@@ -143,15 +137,12 @@ describe('createAsyncStore', function () {
         .then(() => {
           const store = createAsyncStore(asyncStorageEngine)
 
-          const pendingHandle = store.subscribe((key, value) => {
-            if (key === '$pending' && value === false) {
+          const pendingHandle = store.subscribe(() => {
+            if (!store.pending()) {
               pendingHandle.dispose()
             }
 
-            store.subscribe((key, value) => {
-              assert.strictEqual(key, 'test')
-              assert.strictEqual(value, undefined)
-
+            store.subscribe(() => {
               asyncStorageEngine.getItem('store')
                 .then(result => assert.strictEqual(result, JSON.stringify({ other: 2 })))
                 .then(done, done)

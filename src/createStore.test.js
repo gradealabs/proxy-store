@@ -66,9 +66,7 @@ describe('createStore', function () {
       const storageEngine = makeStorageEngine()
       const store = createStore(storageEngine)
 
-      store.subscribe((key, value) => {
-        assert.strictEqual(key, 'test')
-        assert.strictEqual(value, 1)
+      store.subscribe(() => {
         assert.strictEqual(storageEngine.getItem('store'), JSON.stringify({ test: 1 }))
         done()
       })
@@ -81,13 +79,11 @@ describe('createStore', function () {
       const store = createStore(storageEngine)
       let subSpy = null
 
-      subSpy = store.subscribe((key, value) => {
-        assert.strictEqual(key, 'test')
-        assert.strictEqual(value, 1)
+      subSpy = store.subscribe(() => {
         assert.strictEqual(storageEngine.getItem('store'), JSON.stringify({ test: 1 }))
         subSpy.dispose()
 
-        subSpy = store.subscribe((key, value) => {
+        subSpy = store.subscribe(() => {
           assert.fail('should not have published unchanged value')
           subSpy.dispose()
         })
@@ -103,9 +99,7 @@ describe('createStore', function () {
       const store = createStore(storageEngine)
       let subSpy = null
 
-      subSpy = store.subscribe((key, value) => {
-        assert.strictEqual(key, 'test')
-        assert.strictEqual(value, undefined)
+      subSpy = store.subscribe(() => {
         assert.strictEqual(storageEngine.getItem('store'), JSON.stringify({ other: 2 }))
         subSpy.dispose()
         done()

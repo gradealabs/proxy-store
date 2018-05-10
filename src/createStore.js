@@ -31,24 +31,15 @@ export const persistStore = (storageEngine, store) => {
   return storageEngine.setItem('store', payload)
 }
 
-export const queue = (publishQueue, key, value) => {
-  publishQueue.push({ key, value })
-}
-
 export default function createStore (storageEngine = null) {
   let subscribers = {}
   let subId = 0
   let onChangeTimeout = null
-  let publishQueue = []
   let store = retrievePersistedStore(storageEngine) || {}
 
   const onChange = () => {
     persistStore(storageEngine, store)
-
-    while (publishQueue.length) {
-      const { key, value } = publishQueue.shift()
-      publish(subscribers, key, value)
-    }
+    publish(subscribers)
   }
 
   return {
@@ -58,7 +49,6 @@ export default function createStore (storageEngine = null) {
       if (changed) {
         store[key] = value
 
-        publishQueue.push({ key, value })
         clearTimeout(onChangeTimeout)
         onChangeTimeout = setTimeout(onChange, 0)
       }
@@ -72,7 +62,6 @@ export default function createStore (storageEngine = null) {
       if (key in store) {
         delete store[key]
 
-        publishQueue.push({ key, value: undefined })
         clearTimeout(onChangeTimeout)
         onChangeTimeout = setTimeout(onChange, 0)
       }

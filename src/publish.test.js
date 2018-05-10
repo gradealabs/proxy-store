@@ -5,17 +5,17 @@ const {
 } = require('./publish')
 
 describe('publish', function () {
-  it('should execute each function with key, value in subscribers', function () {
+  it('should execute each function', function () {
     let counter = 0
 
     const subscribers = {
-      0: (a, b) => counter = counter + (a * 1) + (b * 1),  // 5
-      1: (a, b) => counter = counter + (a * 2) + (b * 2),  // 10
-      2: (a, b) => counter = counter + (a * 3) + (b * 3),  // 15
+      0: () => counter++,
+      1: () => counter++,
+      2: () => counter++
     }
 
-    publish(subscribers, 2, 3)
-    assert.strictEqual(counter, 30)
+    publish(subscribers)
+    assert.strictEqual(counter, 3)
   })
 
   it('should execute each function in subscribers in numerical order of keys', function () {

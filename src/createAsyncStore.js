@@ -36,22 +36,17 @@ export default function createAsyncStore (asyncStorageEngine = null) {
   let subId = 0
   let storePending = true
   let onChangeTimeout = null
-  let publishQueue = []
   let store = {}
 
   const onChange = () => {
     persistStore(asyncStorageEngine, store)
-
-    while (publishQueue.length) {
-      const { key, value } = publishQueue.shift()
-      publish(subscribers, key, value)
-    }
+    publish(subscribers)
   }
 
   retrievePersistedStore(asyncStorageEngine).then(persistedStore => {
     Object.assign(store, persistedStore || {})
     storePending = false
-    publish(subscribers, '$pending', storePending)
+    publish(subscribers)
   })
 
   return {
@@ -64,7 +59,6 @@ export default function createAsyncStore (asyncStorageEngine = null) {
       if (changed) {
         store[key] = value
 
-        publishQueue.push({ key, value })
         clearTimeout(onChangeTimeout)
         onChangeTimeout = setTimeout(onChange, 0)
       }
@@ -77,7 +71,6 @@ export default function createAsyncStore (asyncStorageEngine = null) {
       if (key in store) {
         delete store[key]
 
-        publishQueue.push({ key, value: undefined })
         clearTimeout(onChangeTimeout)
         onChangeTimeout = setTimeout(onChange, 0)
       }

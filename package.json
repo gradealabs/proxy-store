@@ -1,6 +1,6 @@
 {
   "name": "@gradealabs/store-hocs",
-  "version": "2.0.2",
+  "version": "2.0.3",
   "description": "Stores as higher-order components",
   "main": "index.js",
   "directories": {
@@ -35,14 +35,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/gradealabs/proxy-store.git"
+    "url": "git+https://github.com/gradealabs/store-hocs.git"
   },
   "author": "Grade A Labs Inc.",
   "license": "BSD-3-Clause",
   "bugs": {
-    "url": "https://github.com/gradealabs/proxy-store/issues"
+    "url": "https://github.com/gradealabs/store-hocs/issues"
   },
-  "homepage": "https://github.com/gradealabs/proxy-store#readme",
+  "homepage": "https://github.com/gradealabs/store-hocs#readme",
   "dependencies": {
     "ejson": "^2.1.2"
   }
