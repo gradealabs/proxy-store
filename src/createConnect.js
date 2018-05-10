@@ -1,7 +1,15 @@
-import * as React from 'react'
+import React from 'react'
+
+export const omitFunctions = (obj) => {
+  let cleanObj = {}
+  Object.keys(obj)
+    .filter(key => typeof obj[key] !== 'function')
+    .forEach(key => (cleanObj[key] = obj[key]))
+  return cleanObj
+}
 
 export default function createConnect (mapStoreToValues, store) {
-  return function (Component) {
+  return function connect (Component) {
     let snapshot = {}
 
     return class extends React.Component {
@@ -15,21 +23,13 @@ export default function createConnect (mapStoreToValues, store) {
         )
       }
 
-      omitFunctions (obj) {
-        let cleanObj = {}
-        Object.keys(obj)
-          .filter(key => typeof obj[key] !== 'function')
-          .forEach(key => (cleanObj[key] = obj[key]))
-        return cleanObj
-      }
-
       componentWillMount () {
         const { props } = this
         this.sub = store.subscribe(() => {
           snapshot = Object.assign(
             {},
             snapshot,
-            this.omitFunctions(mapStoreToValues(store, this.props))
+            omitFunctions(mapStoreToValues(store, this.props))
           )
           this.forceUpdate()
         })
@@ -39,7 +39,7 @@ export default function createConnect (mapStoreToValues, store) {
         snapshot = Object.assign(
           {},
           snapshot,
-          this.omitFunctions(mapStoreToValues(store, this.props))
+          omitFunctions(mapStoreToValues(store, this.props))
         )
       }
 

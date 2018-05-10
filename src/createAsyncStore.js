@@ -1,51 +1,57 @@
+import EJSON from 'ejson'
+import publish from './publish'
+
+export const retrievePersistedStore = async (asyncStorageEngine) => {
+  if (!asyncStorageEngine) {
+    return
+  }
+
+  let payload = await asyncStorageEngine.getItem('store')
+
+  try {
+    return EJSON.parse(payload)
+  } catch (e) {
+    return null
+  }
+}
+
+export const persistStore = async (asyncStorageEngine, store) => {
+  if (!asyncStorageEngine) {
+    return
+  }
+
+  let payload
+
+  try {
+    payload = EJSON.stringify(store)
+  } catch (e) {
+    payload = null
+  }
+
+  return await asyncStorageEngine.setItem('store', payload)
+}
+
 export default function createAsyncStore (asyncStorageEngine = null) {
-  let subscribers = []
-
-  const retrievePersistedStore = async () => {
-    if (!asyncStorageEngine) {
-      return
-    }
-
-    let payload = await asyncStorageEngine.getItem('store')
-
-    try {
-      return JSON.parse(payload)
-    } catch (e) {
-      return null
-    }
-  }
-
-  const persistStore = async store => {
-    if (!asyncStorageEngine) {
-      return
-    }
-
-    let payload
-
-    try {
-      payload = JSON.stringify(store)
-    } catch (e) {
-      payload = null
-    }
-
-    return await asyncStorageEngine.setItem('store', payload)
-  }
-
-  const publish = (key, value) => {
-    subscribers.forEach(fn => {
-      if (fn) {
-        fn(key, value)
-      }
-    })
-  }
-
+  let subscribers = {}
+  let subId = 0
   let storePending = true
+  let onChangeTimeout = null
+  let publishQueue = []
   let store = {}
 
-  retrievePersistedStore().then(persistedStore => {
+  const onChange = () => {
+    persistStore(asyncStorageEngine, store)
+
+    while (publishQueue.length) {
+      const { key, value } = publishQueue.shift()
+      publish(subscribers, key, value)
+    }
+  }
+
+  retrievePersistedStore(asyncStorageEngine).then(persistedStore => {
     Object.assign(store, persistedStore || {})
     storePending = false
-    publish('$pending', storePending)
+    publish(subscribers, '$pending', storePending)
   })
 
   return {
@@ -53,24 +59,29 @@ export default function createAsyncStore (asyncStorageEngine = null) {
       return storePending
     },
     set (key, value) {
-      const changed = JSON.stringify(value) !== JSON.stringify(store[key])
+      const changed = value !== store[key]
+
       if (changed) {
         store[key] = value
-        persistStore(store)
-        publish(key, value)
+
+        publishQueue.push({ key, value })
+        clearTimeout(onChangeTimeout)
+        onChangeTimeout = setTimeout(onChange, 0)
       }
       return store
     },
     get (key) {
       return store[key]
     },
-    deleteProperty (target, key) {
-      if (key in target) {
+    deleteProperty (key) {
+      if (key in store) {
         delete store[key]
-        persistStore(store)
-        publish(key, undefined)
-        return store
+
+        publishQueue.push({ key, value: undefined })
+        clearTimeout(onChangeTimeout)
+        onChangeTimeout = setTimeout(onChange, 0)
       }
+
       return store
     },
     /**
@@ -81,10 +92,16 @@ export default function createAsyncStore (asyncStorageEngine = null) {
      * to unsubscribe.
      */
     subscribe (fn) {
-      var n = subscribers.push(fn)
+      if (typeof fn !== 'function') {
+        throw new Error('subscribe expects a function as a parameter')
+      }
+
+      subId = subId + 1
+      subscribers[subId] = fn
+
       return {
         dispose () {
-          subscribers[n - 1] = null
+          delete subscribers[subId]
         }
       }
     }

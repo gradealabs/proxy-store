@@ -1,66 +1,82 @@
+import EJSON from 'ejson'
+import publish from './publish'
+
+export const retrievePersistedStore = storageEngine => {
+  if (!storageEngine) {
+    return
+  }
+
+  let payload = storageEngine.getItem('store')
+
+  try {
+    return EJSON.parse(payload)
+  } catch (e) {
+    return null
+  }
+}
+
+export const persistStore = (storageEngine, store) => {
+  if (!storageEngine) {
+    return
+  }
+
+  let payload
+
+  try {
+    payload = EJSON.stringify(store)
+  } catch (e) {
+    payload = null
+  }
+
+  return storageEngine.setItem('store', payload)
+}
+
+export const queue = (publishQueue, key, value) => {
+  publishQueue.push({ key, value })
+}
+
 export default function createStore (storageEngine = null) {
-  let subscribers = []
+  let subscribers = {}
+  let subId = 0
+  let onChangeTimeout = null
+  let publishQueue = []
+  let store = retrievePersistedStore(storageEngine) || {}
 
-  const retrievePersistedStore = () => {
-    if (!storageEngine) {
-      return
-    }
+  const onChange = () => {
+    persistStore(storageEngine, store)
 
-    let payload = storageEngine.getItem('store')
-
-    try {
-      return JSON.parse(payload)
-    } catch (e) {
-      return null
+    while (publishQueue.length) {
+      const { key, value } = publishQueue.shift()
+      publish(subscribers, key, value)
     }
   }
-
-  const persistStore = store => {
-    if (!storageEngine) {
-      return
-    }
-
-    let payload
-
-    try {
-      payload = JSON.stringify(store)
-    } catch (e) {
-      payload = null
-    }
-
-    return storageEngine.setItem('store', payload)
-  }
-
-  const publish = (key, value) => {
-    subscribers.forEach(fn => {
-      if (fn) {
-        fn(key, value)
-      }
-    })
-  }
-
-  let store = retrievePersistedStore() || {}
 
   return {
     set (key, value) {
-      const changed = JSON.stringify(value) !== JSON.stringify(store[key])
+      const changed = value !== store[key]
+
       if (changed) {
         store[key] = value
-        persistStore(store)
-        publish(key, value)
+
+        publishQueue.push({ key, value })
+        clearTimeout(onChangeTimeout)
+        onChangeTimeout = setTimeout(onChange, 0)
       }
+
       return store
     },
     get (key) {
       return store[key]
     },
-    deleteProperty (target, key) {
-      if (key in target) {
+    deleteProperty (key) {
+      if (key in store) {
         delete store[key]
-        persistStore(store)
-        publish(key, undefined)
-        return store
+
+        publishQueue.push({ key, value: undefined })
+        clearTimeout(onChangeTimeout)
+        onChangeTimeout = setTimeout(onChange, 0)
       }
+
       return store
     },
     /**
@@ -71,10 +87,16 @@ export default function createStore (storageEngine = null) {
      * to unsubscribe.
      */
     subscribe (fn) {
-      var n = subscribers.push(fn)
+      if (typeof fn !== 'function') {
+        throw new Error('subscribe expects a function as a parameter')
+      }
+
+      subId = subId + 1
+      subscribers[subId] = fn
+
       return {
         dispose () {
-          subscribers[n - 1] = null
+          delete subscribers[subId]
         }
       }
     }

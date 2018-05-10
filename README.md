@@ -1,6 +1,6 @@
-# Proxy Store 2.0.1
+# Store HOCs 2.0.2
 
-Proxy Store allows you to store data in an object to be used across components in a similar way to Redux but without the ceremony. The store is completely ad-hoc and you are meant to map the store object to props when used.
+Store HOCs allows you to store data in an object to be used across components in a similar way to Redux but without the ceremony. The store is completely ad-hoc and you are meant to map the store object to props when used.
 
 ## Quick Start
 
@@ -10,7 +10,7 @@ When `items` is modified in the store, any component wrapped with `withMemorySto
 
 ```javascript
 import React from 'react'
-import { withMemoryStore } from '@gradealabs/proxy-store'
+import { withMemoryStore } from '@gradealabs/store-hocs'
 
 class Widget extends React.PureComponent {
   render () {
@@ -45,7 +45,7 @@ For example:
 #### `withItems.js`
 
 ```javascript
-import { withMemoryStore } from '@gradealabs/proxy-store'
+import { withMemoryStore } from '@gradealabs/store-hocs'
 
 export default function () {
   return withMemoryStore(store => {
@@ -74,7 +74,7 @@ export default withItems()(Widget)
 
 ### Alternative storage engines
 
-There are other HOC helpers available that are backed by different storage engines. Along with the standard memory store, there is also support for localStorage and sessionStorage. You can use the one that is most suitable to the type of persistance you need:
+There are other HOC helpers available that are backed by different storage engines. Along with the standard memory store, there is also support for localStorage and sessionStorage. You can use the one that is most suitable to the type of persistence you need:
 
 - If you want the store to be cleared after a refresh, use the memory store (`withMemoryStore` for example).
 - If you want the store to survive a page refresh, use a session store (`withSessionStore` for example).
@@ -89,7 +89,7 @@ Here is an example of how to create your own HOC that uses its own storage engin
 #### `customStore.js`
 
 ```javascript
-import { createStore } from '@gradealabs/proxy-store'
+import { createStore } from '@gradealabs/store-hocs'
 
 // the storageEngine API requires `setItem`, `getItem`, and `removeItem`
 const myStorageEngine = {
@@ -113,7 +113,7 @@ export default store
 #### `withCustomStore.js`
 
 ```javascript
-import { createConnect } from '@gradealabs/proxy-store'
+import { createConnect } from '@gradealabs/store-hocs'
 import customStore from './customStore'
 
 export default function withCustomStore (mapStoreToValues) {
@@ -130,7 +130,7 @@ Below is an example of a custom async store that leverages React Native's `Async
 #### `asyncStore.js`
 
 ```javascript
-import { createAsyncStore } from '@gradealabs/proxy-store'
+import { createAsyncStore } from '@gradealabs/store-hocs'
 import { AsyncStorage } from 'react-native'
 
 class AsyncStorageAdapter {
@@ -152,10 +152,20 @@ const store = createAsyncStore(new AsyncStorageAdapter())
 export default store
 ```
 
+Alternatively, since AsyncStorage already shares the correct API (setItem,
+getItem, and removeItem), we could replace `asyncStore.js` with:
+
+```javascript
+import { createAsyncStore } from '@gradealabs/store-hocs'
+import { AsyncStorage } from 'react-native'
+
+export default createAsyncStore(AsyncStorage)
+```
+
 #### `withAsyncStore.js`
 
 ```javascript
-import { createConnect } from '@gradealabs/proxy-store'
+import { createConnect } from '@gradealabs/store-hocs'
 import asyncStore from './asyncStore'
 
 export default function withAsyncStore (mapStoreToValues) {
@@ -230,21 +240,6 @@ To build the source
 
 Unit tests are expected to be colocated next to the module/file they are testing and have the following suffix `.test.js`.
 
-To run unit tests through [istanbul](https://istanbul.js.org/) and [mocha](http://mochajs.org/)
+To run unit tests through [mocha](http://mochajs.org/):
 
     npm test
-
-## Maintenance
-
-To check what modules in `node_modules` are outdated:
-
-    npm run audit
-
-To update outdated modules while respecting the semver rules in the package.json:
-
-    npm update
-
-To update a module to the latest major version (replacing what you have):
-
-    npm install themodule@latest -S (if to save in dependencies)
-    npm install themodule@latest -D (if to save in devDependencies)
