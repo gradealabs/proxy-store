@@ -25,33 +25,38 @@ const makeStorageEngine = () => {
 const makeAsyncStorageEngine = () => {
   let backingStore = {}
   return {
-    setItem: (key, value) => Promise.resolve(backingStore[key] = value),
-    getItem: key => Promise.resolve(backingStore[key])
+    setItem: (key, value) => new Promise(resolve => {
+      setTimeout(() => resolve(backingStore[key] = value), 0)
+    }),
+    getItem: key => new Promise(resolve => {
+      setTimeout(() => resolve(backingStore[key]), 0)
+    })
+  }
+}
+
+class Widget extends React.PureComponent {
+  render () {
+    const { items, addItem } = this.props
+    return (
+      <React.Fragment>
+        {items.map((item, key) => <div key={key}>{item}</div>)}
+      </React.Fragment>
+    )
+  }
+}
+
+const mapStoreToValues = store => {
+  return {
+    items: store.get('items') || [],
+    addItem: value => {
+      store.set('items', [ ...store.get('items') || [], value ])
+    },
+    setValue: value => store.set('value', value),
+    pending: typeof store.pending === 'function' ? store.pending() : false
   }
 }
 
 const commonStoreIntegrationTests = (wording, makeStorageEngine, createStore) => {
-  class Widget extends React.PureComponent {
-    render () {
-      const { items, addItem } = this.props
-      return (
-        <React.Fragment>
-          {items.map((item, key) => <div key={key}>{item}</div>)}
-        </React.Fragment>
-      )
-    }
-  }
-
-  const mapStoreToValues = store => {
-    return {
-      items: store.get('items') || [],
-      addItem: value => {
-        store.set('items', [ ...store.get('items') || [], value ])
-      },
-      setValue: value => store.set('value', value)
-    }
-  }
-
   it(`should have 0 item divs on next tick (${wording})`, function (done) {
     const storageEngine = makeStorageEngine()
     const store = createStore(storageEngine)
@@ -188,5 +193,20 @@ describe('createConnect', function () {
 
   describe('createAsyncStore integration', function () {
     commonStoreIntegrationTests('async', makeAsyncStorageEngine, createAsyncStore)
+
+    it('should have prop value for pending as true, then as false on next tick', function (done) {
+      const asyncStorageEngine = makeAsyncStorageEngine()
+      const store = createAsyncStore(asyncStorageEngine)
+      const connect = createConnect(mapStoreToValues, store)
+      const Component = connect(Widget)
+      const wrapper = Enzyme.mount(<Component />)
+
+      assert.strictEqual(wrapper.childAt(0).props().pending, true)
+      setTimeout(function () {
+        wrapper.update()
+        assert.strictEqual(wrapper.childAt(0).props().pending, false)
+        done()
+      }, 0)
+    })
   })
 })
