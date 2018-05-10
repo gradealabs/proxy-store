@@ -162,6 +162,30 @@ import { AsyncStorage } from 'react-native'
 export default createAsyncStore(AsyncStorage)
 ```
 
+And if you happen to be using Expo, an example of using `SecureStore` could look
+like this:
+
+```javascript
+import { createAsyncStore } from '@gradealabs/store-hocs'
+import { SecureStore } from 'expo'
+
+class AsyncStorageAdapter {
+  setItem (key, value) {
+    return SecureStore.setItemAsync(key, value)
+  }
+
+  getItem (key) {
+    return SecureStore.getItemAsync(key)
+  }
+
+  removeItem (key) {
+    return SecureStore.deleteItemAsync(key)
+  }
+}
+
+export default createAsyncStore(new AsyncStorageAdapter())
+```
+
 #### `withAsyncStore.js`
 
 ```javascript
