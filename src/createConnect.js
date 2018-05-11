@@ -10,45 +10,42 @@ export const omitFunctions = (obj) => {
 
 export default function createConnect (mapStoreToValues, store) {
   return function connect (Component) {
-    let snapshot = {}
-
     return class extends React.Component {
       constructor (props, context) {
         super(props, context)
 
-        snapshot = Object.assign(
-          {},
-          snapshot,
-          mapStoreToValues(store, props)
-        )
+        this.state = mapStoreToValues(store, props)
       }
 
-      componentWillMount () {
-        const { props } = this
+      componentDidMount () {
         this.sub = store.subscribe(() => {
-          snapshot = Object.assign(
+          if (this.unmounted) {
+            return
+          }
+
+          this.setState(Object.assign(
             {},
-            snapshot,
+            this.state,
             omitFunctions(mapStoreToValues(store, this.props))
-          )
-          this.forceUpdate()
+          ))
         })
       }
 
-      componentWillUpdate () {
-        snapshot = Object.assign(
+      static getDerivedStateFromProps (nextProps, prevState) {
+        return Object.assign(
           {},
-          snapshot,
-          omitFunctions(mapStoreToValues(store, this.props))
+          prevState,
+          omitFunctions(mapStoreToValues(store, nextProps))
         )
       }
 
       componentWillUnmount () {
+        this.unmounted = true
         this.sub && this.sub.dispose && this.sub.dispose()
       }
 
       render () {
-        return <Component {...Object.assign({}, snapshot, this.props)} />
+        return <Component {...Object.assign({}, this.state, this.props)} />
       }
     }
   }
