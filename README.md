@@ -1,4 +1,6 @@
-# Store HOCs 2.0.3
+# Store HOCs 3.0.0
+
+**Supports React 16.3+ only. For < 16.3, use [v2.0.3](https://github.com/gradealabs/store-hocs/releases/tag/v2.0.3)**
 
 Store HOCs allows you to store data in an object to be used across components in a similar way to Redux but without the ceremony. The store is completely ad-hoc and you are meant to map the store object to props when used.
 
@@ -105,9 +107,7 @@ const myStorageEngine = {
   }
 }
 
-const store = createStore(myStorageEngine)
-
-export default store
+export default createStore(myStorageEngine)
 ```
 
 #### `withCustomStore.js`
@@ -147,9 +147,7 @@ class AsyncStorageAdapter {
   }
 }
 
-const store = createAsyncStore(new AsyncStorageAdapter())
-
-export default store
+export default createAsyncStore(new AsyncStorageAdapter())
 ```
 
 Alternatively, since AsyncStorage already shares the correct API (setItem,
