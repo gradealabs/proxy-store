@@ -129,15 +129,14 @@ const commonStoreIntegrationTests = (wording, makeStorageEngine, createStore) =>
       wrapper.childAt(0).props().setValue('value2')
       expectedRenderCount++
 
-      setTimeout(function () {
-        assert.strictEqual(Widget.prototype.render.callCount, expectedRenderCount)
-        Widget.prototype.render.restore()
-        done()
-      }, 0)
+      assert.strictEqual(Widget.prototype.render.callCount, expectedRenderCount)
+      Widget.prototype.render.restore()
+
+      done()
     }, 0)
   })
 
-  it(`should not render again if setting value to same value again in next tick (${wording})`, function (done) {
+  it(`should render again if setting value to same value again in next tick (${wording})`, function (done) {
     const storageEngine = makeStorageEngine()
     const store = createStore(storageEngine)
     const connect = createConnect(mapStoreToValues, store)
@@ -161,15 +160,14 @@ const commonStoreIntegrationTests = (wording, makeStorageEngine, createStore) =>
       // set again to same value in next tick (should not re-render)
       wrapper.childAt(0).props().setValue('valueX')
 
-      setTimeout(function () {
-        assert.strictEqual(Widget.prototype.render.callCount, expectedRenderCount)
-        Widget.prototype.render.restore()
-        done()
-      }, 0)
+      assert.strictEqual(Widget.prototype.render.callCount, expectedRenderCount)
+      Widget.prototype.render.restore()
+
+      done()
     }, 0)
   })
 
-  it(`should not render again if setting value to a different value in same tick (${wording})`, function (done) {
+  it(`should render again if setting value to a different value in same tick (${wording})`, function () {
     const storageEngine = makeStorageEngine()
     const store = createStore(storageEngine)
     const connect = createConnect(mapStoreToValues, store)
@@ -182,21 +180,16 @@ const commonStoreIntegrationTests = (wording, makeStorageEngine, createStore) =>
     // initial render when mounted
     expectedRenderCount++
 
-    // $pending true -> false forces an additional render
-    expectedRenderCount += wording === 'async' ? 1 : 0
-
     // set to new value
     wrapper.childAt(0).props().setValue('value3')
     expectedRenderCount++
 
     // set to new value on same tick
     wrapper.childAt(0).props().setValue('value4')
+    expectedRenderCount++
 
-    setTimeout(function () {
-      assert.strictEqual(Widget.prototype.render.callCount, expectedRenderCount)
-      Widget.prototype.render.restore()
-      done()
-    }, 0)
+    assert.strictEqual(Widget.prototype.render.callCount, expectedRenderCount)
+    Widget.prototype.render.restore()
   })
 }
 
@@ -239,10 +232,8 @@ describe('createConnect', function () {
       assert.strictEqual(wrapper.childAt(0).props().pending, true)
       setTimeout(function () {
         wrapper.update()
-        setTimeout(function () {
-          assert.strictEqual(wrapper.childAt(0).props().pending, false)
-          done()
-        }, 0)
+        assert.strictEqual(wrapper.childAt(0).props().pending, false)
+        done()
       }, 0)
     })
   })

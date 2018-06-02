@@ -38,4 +38,14 @@ describe('publish', function () {
 
     publish(subscribers)
   })
+
+  it('should send change parameter to subscribers', function () {
+    const subscribers = {
+      0: (a) => assert.strictEqual(a, 1),
+      1: (a) => assert.strictEqual(a, 1),
+      2: (a) => assert.strictEqual(a, 1)
+    }
+
+    publish(subscribers, 1)
+  })
 })

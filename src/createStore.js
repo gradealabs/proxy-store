@@ -34,12 +34,11 @@ export const persistStore = (storageEngine, store) => {
 export default function createStore (storageEngine = null) {
   let subscribers = {}
   let subId = 0
-  let onChangeTimeout = null
   let store = retrievePersistedStore(storageEngine) || {}
 
-  const onChange = () => {
+  const onChange = change => {
     persistStore(storageEngine, store)
-    publish(subscribers)
+    publish(subscribers, change)
   }
 
   return {
@@ -48,9 +47,7 @@ export default function createStore (storageEngine = null) {
 
       if (changed) {
         store[key] = value
-
-        clearTimeout(onChangeTimeout)
-        onChangeTimeout = setTimeout(onChange, 0)
+        onChange({ type: 'set', key, value })
       }
 
       return store
@@ -61,9 +58,7 @@ export default function createStore (storageEngine = null) {
     deleteProperty (key) {
       if (key in store) {
         delete store[key]
-
-        clearTimeout(onChangeTimeout)
-        onChangeTimeout = setTimeout(onChange, 0)
+        onChange({ type: 'deleteProperty', key })
       }
 
       return store
