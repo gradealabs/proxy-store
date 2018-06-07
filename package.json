@@ -7,9 +7,9 @@
     "lib": "lib"
   },
   "scripts": {
-    "build": "babel src --plugins @babel/plugin-transform-modules-commonjs --presets @babel/es2017,@babel/react --out-dir lib --no-babelrc --ignore '**/*.test.js'",
+    "build": "BABEL_ENV=build babel src --out-dir lib --ignore '**/*.test.js'",
     "prepare": "npm run build",
-    "test": "mocha --require jsdom-setup.js --require @babel/register --require @babel/polyfill src/*.test.js"
+    "test": "BABEL_ENV=test mocha --require jsdom-setup.js --require @babel/register --require @babel/polyfill src/*.test.js"
   },
   "peerDependencies": {
     "react": "^16.3.2",
@@ -23,6 +23,7 @@
     "@babel/preset-env": "^7.0.0-beta.49",
     "@babel/preset-es2017": "^7.0.0-beta.49",
     "@babel/preset-react": "^7.0.0-beta.49",
+    "@babel/preset-stage-0": "^7.0.0-beta.49",
     "@babel/register": "^7.0.0-beta.49",
     "@babel/runtime": "^7.0.0-beta.49",
     "enzyme": "^3.3.0",
