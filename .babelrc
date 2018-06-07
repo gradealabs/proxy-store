@@ -1,15 +1,21 @@
 {
   "presets": [
-    "@babel/es2015",
+    "@babel/es2017",
     "@babel/react",
     ["@babel/stage-0", {
       "decoratorsLegacy": true
     }],
     ["@babel/env", {
       "targets": {
-        "node": "current"
+        "browsers": ["last 2 versions", "ie >= 10"]
       }
     }]
   ],
-  "plugins": ["@babel/plugin-transform-modules-commonjs"]
+  "plugins": [
+    "@babel/plugin-transform-modules-commonjs",
+    ["@babel/transform-runtime", {
+      "polyfill": true,
+      "regenerator": true
+    }]
+  ]
 }
