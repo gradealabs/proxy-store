@@ -7,15 +7,11 @@
     }],
     ["@babel/env", {
       "targets": {
-        "browsers": ["last 2 versions", "ie >= 10"]
+        "node": ["current"]
       }
     }]
   ],
   "plugins": [
-    "@babel/plugin-transform-modules-commonjs",
-    ["@babel/transform-runtime", {
-      "polyfill": true,
-      "regenerator": true
-    }]
+    "@babel/plugin-transform-modules-commonjs"
   ]
 }
