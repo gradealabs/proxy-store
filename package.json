@@ -1,13 +1,13 @@
 {
   "name": "@gradealabs/store-hocs",
-  "version": "3.1.0",
+  "version": "3.1.1",
   "description": "Stores as higher-order components",
   "main": "index.js",
   "directories": {
     "lib": "lib"
   },
   "scripts": {
-    "build": "babel --plugins @babel/plugin-transform-modules-commonjs src --out-dir lib --ignore '**/*.test.js'",
+    "build": "babel --presets @babel/es2017 --plugins @babel/plugin-transform-modules-commonjs src --out-dir lib --ignore '**/*.test.js'",
     "prepare": "npm run build",
     "test": "mocha --require jsdom-setup.js --require @babel/register --require @babel/polyfill src/*.test.js"
   },
@@ -22,6 +22,7 @@
     "@babel/polyfill": "^7.0.0-beta.46",
     "@babel/preset-env": "^7.0.0-beta.46",
     "@babel/preset-es2015": "^7.0.0-beta.46",
+    "@babel/preset-es2017": "^7.0.0-beta.49",
     "@babel/preset-react": "^7.0.0-beta.46",
     "@babel/preset-stage-0": "^7.0.0-beta.46",
     "@babel/register": "^7.0.0-beta.46",
