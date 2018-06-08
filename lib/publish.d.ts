@@ -1,1 +1,1 @@
-export default function publish(subscribers: any, change: any): void;
+export default function publish(subscribers: any, change?: any): void;
