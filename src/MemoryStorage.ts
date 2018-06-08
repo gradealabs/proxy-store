@@ -1,7 +1,5 @@
 export default class {
-  constructor () {
-    this.store = {}
-  }
+  store = {}
 
   setItem (key, value) {
     this.store[key] = value

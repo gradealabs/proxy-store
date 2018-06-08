@@ -1,3 +1,4 @@
+import * as React from 'react'
 import createConnect from './createConnect'
 import memoryStorageStore from './memoryStorageStore'
 
