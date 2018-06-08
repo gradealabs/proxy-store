@@ -1,11 +1,12 @@
-const React = require('react')
-const Enzyme = require('enzyme')
-const Adapter = require('enzyme-adapter-react-16')
-const assert = require('assert')
-const sinon = require('sinon')
+import * as React from 'react'
+import * as PropTypes from 'prop-types'
+import * as Enzyme from 'enzyme'
+import * as Adapter from 'enzyme-adapter-react-16'
+import * as assert from 'assert'
+import * as sinon from 'sinon'
 
-const createStore = require('./createStore').default
-const createAsyncStore = require('./createAsyncStore').default
+import createStore from './createStore'
+import createAsyncStore from './createAsyncStore'
 
 const {
   default: createConnect,
@@ -34,14 +35,16 @@ const makeAsyncStorageEngine = () => {
   }
 }
 
-class Widget extends React.PureComponent {
-  render () {
-    const { items, addItem } = this.props
-    return (
-      <React.Fragment>
-        {items.map((item, key) => <div key={key}>{item}</div>)}
-      </React.Fragment>
-    )
+const makeWidget = () => {
+  return class extends React.PureComponent<{ items: string[] }> {
+    render () {
+      const { items } = this.props
+      return (
+        <React.Fragment>
+          {items.map((item, key) => <div key={key}>{item}</div>)}
+        </React.Fragment>
+      )
+    }
   }
 }
 
@@ -62,6 +65,7 @@ const commonStoreIntegrationTests = (wording, makeStorageEngine, createStore) =>
     const storageEngine = makeStorageEngine()
     const store = createStore(storageEngine)
     const connect = createConnect(mapStoreToValues, store)
+    const Widget = makeWidget()
     const Component = connect(Widget)
     const wrapper = Enzyme.mount(<Component />)
 
@@ -76,6 +80,7 @@ const commonStoreIntegrationTests = (wording, makeStorageEngine, createStore) =>
     const storageEngine = makeStorageEngine()
     const store = createStore(storageEngine)
     const connect = createConnect(mapStoreToValues, store)
+    const Widget = makeWidget()
     const Component = connect(Widget)
     const wrapper = Enzyme.mount(<Component />)
 
@@ -91,6 +96,7 @@ const commonStoreIntegrationTests = (wording, makeStorageEngine, createStore) =>
     const storageEngine = makeStorageEngine()
     const store = createStore(storageEngine)
     const connect = createConnect(mapStoreToValues, store)
+    const Widget = makeWidget()
     const Component = connect(Widget)
     const wrapper = Enzyme.mount(<Component />)
 
@@ -108,6 +114,7 @@ const commonStoreIntegrationTests = (wording, makeStorageEngine, createStore) =>
     const storageEngine = makeStorageEngine()
     const store = createStore(storageEngine)
     const connect = createConnect(mapStoreToValues, store)
+    const Widget = makeWidget()
     const Component = connect(Widget)
     sinon.spy(Widget.prototype, 'render')
     const wrapper = Enzyme.mount(<Component />)
@@ -129,8 +136,7 @@ const commonStoreIntegrationTests = (wording, makeStorageEngine, createStore) =>
       wrapper.childAt(0).props().setValue('value2')
       expectedRenderCount++
 
-      assert.strictEqual(Widget.prototype.render.callCount, expectedRenderCount)
-      Widget.prototype.render.restore()
+      assert.strictEqual(Widget.prototype.render['callCount'], expectedRenderCount)
 
       done()
     }, 0)
@@ -140,6 +146,7 @@ const commonStoreIntegrationTests = (wording, makeStorageEngine, createStore) =>
     const storageEngine = makeStorageEngine()
     const store = createStore(storageEngine)
     const connect = createConnect(mapStoreToValues, store)
+    const Widget = makeWidget()
     const Component = connect(Widget)
     sinon.spy(Widget.prototype, 'render')
     const wrapper = Enzyme.mount(<Component />)
@@ -160,8 +167,7 @@ const commonStoreIntegrationTests = (wording, makeStorageEngine, createStore) =>
       // set again to same value in next tick (should not re-render)
       wrapper.childAt(0).props().setValue('valueX')
 
-      assert.strictEqual(Widget.prototype.render.callCount, expectedRenderCount)
-      Widget.prototype.render.restore()
+      assert.strictEqual(Widget.prototype.render['callCount'], expectedRenderCount)
 
       done()
     }, 0)
@@ -171,6 +177,7 @@ const commonStoreIntegrationTests = (wording, makeStorageEngine, createStore) =>
     const storageEngine = makeStorageEngine()
     const store = createStore(storageEngine)
     const connect = createConnect(mapStoreToValues, store)
+    const Widget = makeWidget()
     const Component = connect(Widget)
     sinon.spy(Widget.prototype, 'render')
     const wrapper = Enzyme.mount(<Component />)
@@ -188,8 +195,7 @@ const commonStoreIntegrationTests = (wording, makeStorageEngine, createStore) =>
     wrapper.childAt(0).props().setValue('value4')
     expectedRenderCount++
 
-    assert.strictEqual(Widget.prototype.render.callCount, expectedRenderCount)
-    Widget.prototype.render.restore()
+    assert.strictEqual(Widget.prototype.render['callCount'], expectedRenderCount)
   })
 }
 
@@ -226,6 +232,7 @@ describe('createConnect', function () {
       const asyncStorageEngine = makeAsyncStorageEngine()
       const store = createAsyncStore(asyncStorageEngine)
       const connect = createConnect(mapStoreToValues, store)
+      const Widget = makeWidget()
       const Component = connect(Widget)
       const wrapper = Enzyme.mount(<Component />)
 

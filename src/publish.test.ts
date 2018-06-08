@@ -1,8 +1,5 @@
-const assert = require('assert')
-
-const {
-  default: publish
-} = require('./publish')
+import * as assert from 'assert'
+import publish from './publish'
 
 describe('publish', function () {
   it('should execute each function', function () {

@@ -1,10 +1,5 @@
-const assert = require('assert')
-
-const {
-  default: createStore,
-  persistStore,
-  retrievePersistedStore
-} = require('./createStore')
+import * as assert from 'assert'
+import createStore, { persistStore, retrievePersistedStore } from './createStore'
 
 const makeStorageEngine = () => {
   let backingStore = {}

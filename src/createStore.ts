@@ -1,4 +1,4 @@
-import EJSON from 'ejson'
+import * as EJSON from 'ejson'
 import publish from './publish'
 
 export const retrievePersistedStore = storageEngine => {

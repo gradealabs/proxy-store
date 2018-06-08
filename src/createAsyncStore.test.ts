@@ -1,10 +1,5 @@
-const assert = require('assert')
-
-const {
-  default: createAsyncStore,
-  persistStore,
-  retrievePersistedStore
-} = require('./createAsyncStore')
+import * as assert from 'assert'
+import createAsyncStore, { persistStore, retrievePersistedStore } from './createAsyncStore'
 
 const makeAsyncStorageEngine = () => {
   let backingStore = {}
