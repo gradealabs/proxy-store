@@ -76,11 +76,12 @@ export default function createStore (storageEngine = null) {
       }
 
       subId = subId + 1
-      subscribers[subId] = fn
+      const thisSubId = subId
+      subscribers[thisSubId] = fn
 
       return {
         dispose () {
-          delete subscribers[subId]
+          delete subscribers[thisSubId]
         }
       }
     }

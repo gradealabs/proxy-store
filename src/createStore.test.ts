@@ -44,6 +44,24 @@ describe('createStore', function () {
     })
   })
 
+  describe('dispose', function () {
+    it('should dispose the correct subscriber', function (done) {
+      const storageEngine = makeStorageEngine()
+      const store = createStore(storageEngine)
+      const firstFn = () => {
+        assert.fail('should not have called firstFn')
+      }
+      const secondFn = () => {
+        done()
+      }
+      const firstHandle = store.subscribe(firstFn)
+      const secondHandle = store.subscribe(secondFn)
+
+      firstHandle.dispose()
+      store.set('test', 1)
+    })
+  })
+
   describe('integration', function () {
     it('should create a store without a storageEngine and .get without issue', function () {
       const store = createStore()
