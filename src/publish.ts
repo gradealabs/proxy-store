@@ -1,8 +1,6 @@
 export default function publish (subscribers, change = undefined) {
-  const subIds = Object.keys(subscribers).map(parseFloat).sort()
-
-  subIds.forEach(subId => {
-    const fn = subscribers[subId]
+  const filtered = subscribers.filter(s => s)
+  for (const fn of filtered) {
     fn(change)
-  })
+  }
 }

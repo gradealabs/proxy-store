@@ -32,8 +32,7 @@ export const persistStore = async (asyncStorageEngine, store) => {
 }
 
 export default function createAsyncStore (asyncStorageEngine = null) {
-  let subscribers = {}
-  let subId = 0
+  let subscribers = []
   let storePending = true
   let store = {}
 
@@ -84,12 +83,11 @@ export default function createAsyncStore (asyncStorageEngine = null) {
         throw new Error('subscribe expects a function as a parameter')
       }
 
-      subId = subId + 1
-      subscribers[subId] = fn
+      const idx = subscribers.push(fn) - 1
 
       return {
         dispose () {
-          delete subscribers[subId]
+          subscribers[idx] = undefined
         }
       }
     }

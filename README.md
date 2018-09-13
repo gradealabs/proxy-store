@@ -1,4 +1,4 @@
-# Store HOCs 3.1.3
+# Store HOCs 3.1.4
 
 **Supports React 16.3+ only. For < 16.3, use [v2.0.3](https://github.com/gradealabs/store-hocs/releases/tag/v2.0.3)**
 

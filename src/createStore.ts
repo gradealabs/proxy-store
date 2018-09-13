@@ -32,8 +32,7 @@ export const persistStore = (storageEngine, store) => {
 }
 
 export default function createStore (storageEngine = null) {
-  let subscribers = {}
-  let subId = 0
+  let subscribers = []
   let store = retrievePersistedStore(storageEngine) || {}
 
   const onChange = change => {
@@ -75,13 +74,11 @@ export default function createStore (storageEngine = null) {
         throw new Error('subscribe expects a function as a parameter')
       }
 
-      subId = subId + 1
-      const thisSubId = subId
-      subscribers[thisSubId] = fn
+      const idx = subscribers.push(fn) - 1
 
       return {
         dispose () {
-          delete subscribers[thisSubId]
+          subscribers[idx] = undefined
         }
       }
     }
