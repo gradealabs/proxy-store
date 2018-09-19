@@ -74,11 +74,11 @@ export default function createStore (storageEngine = null) {
         throw new Error('subscribe expects a function as a parameter')
       }
 
-      const idx = subscribers.push(fn) - 1
+      subscribers.push(fn)
 
       return {
         dispose () {
-          subscribers[idx] = undefined
+          subscribers = subscribers.filter(cb => cb !== fn)
         }
       }
     }

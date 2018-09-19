@@ -1,6 +1,5 @@
 export default function publish (subscribers, change = undefined) {
-  const filtered = subscribers.filter(s => s)
-  for (const fn of filtered) {
+  for (const fn of subscribers) {
     fn(change)
   }
 }
