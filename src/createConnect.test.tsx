@@ -16,21 +16,21 @@ const {
 Enzyme.configure({ adapter: new Adapter() })
 
 const makeStorageEngine = () => {
-  let backingStore = {}
+  let backingStore = null
   return {
-    setItem: (key, value) => backingStore[key] = value,
-    getItem: key => backingStore[key]
+    setStore: store => (backingStore = store),
+    getStore: () => backingStore
   }
 }
 
 const makeAsyncStorageEngine = () => {
-  let backingStore = {}
+  let backingStore = null
   return {
-    setItem: (key, value) => new Promise(resolve => {
-      setTimeout(() => resolve(backingStore[key] = value), 0)
+    setStore: store => new Promise(resolve => {
+      setTimeout(() => resolve(backingStore = store), 0)
     }),
-    getItem: key => new Promise(resolve => {
-      setTimeout(() => resolve(backingStore[key]), 0)
+    getStore: () => new Promise(resolve => {
+      setTimeout(() => resolve(backingStore), 0)
     })
   }
 }

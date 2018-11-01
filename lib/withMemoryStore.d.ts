@@ -2,7 +2,9 @@ import * as React from 'react';
 export default function withMemoryStorage(mapStoreToValues: any): (Component: any) => {
     new (props: any, context: any): {
         unmounted: boolean;
-        sub: any;
+        sub: {
+            dispose: Function;
+        };
         componentDidMount(): void;
         componentWillUnmount(): void;
         render(): JSX.Element;

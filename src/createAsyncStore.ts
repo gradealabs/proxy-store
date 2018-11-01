@@ -1,46 +1,41 @@
-import * as EJSON from 'ejson'
 import publish from './publish'
 
-export const retrievePersistedStore = storageEngine => {
-  if (!storageEngine) {
+export const retrievePersistedStore = async (asyncStorageEngine) => {
+  if (!asyncStorageEngine) {
     return
   }
 
-  let payload = storageEngine.getItem('store')
-
-  try {
-    return EJSON.parse(payload)
-  } catch (e) {
-    return null
-  }
+  return await asyncStorageEngine.getStore()
 }
 
-export const persistStore = (storageEngine, store) => {
-  if (!storageEngine) {
+export const persistStore = async (asyncStorageEngine, store) => {
+  if (!asyncStorageEngine) {
     return
   }
 
-  let payload
-
-  try {
-    payload = EJSON.stringify(store)
-  } catch (e) {
-    payload = null
-  }
-
-  return storageEngine.setItem('store', payload)
+  return await asyncStorageEngine.setStore(store)
 }
 
-export default function createStore (storageEngine = null) {
+export default function createAsyncStore (asyncStorageEngine = null) {
   let subscribers = []
-  let store = retrievePersistedStore(storageEngine) || {}
+  let storePending = true
+  let store = {}
 
   const onChange = change => {
-    persistStore(storageEngine, store)
+    persistStore(asyncStorageEngine, store)
     publish(subscribers, change)
   }
 
+  retrievePersistedStore(asyncStorageEngine).then(persistedStore => {
+    Object.assign(store, persistedStore || {})
+    storePending = false
+    publish(subscribers, { type: 'set', key: 'pending', value: storePending })
+  })
+
   return {
+    pending () {
+      return storePending
+    },
     set (key, value) {
       const changed = value !== store[key]
 
@@ -48,7 +43,6 @@ export default function createStore (storageEngine = null) {
         store[key] = value
         onChange({ type: 'set', key, value })
       }
-
       return store
     },
     get (key) {

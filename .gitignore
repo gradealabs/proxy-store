@@ -4,5 +4,3 @@ node_modules
 coverage
 .cache
 dist
-lib/file.d.ts
-lib/file.js

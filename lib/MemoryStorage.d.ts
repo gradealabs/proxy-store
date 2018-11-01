@@ -1,6 +1,6 @@
-export default class {
-    store: {};
-    setItem(key: any, value: any): void;
-    getItem(key: any): any;
-    removeItem(key: any): void;
+export default class MemoryStorage {
+    store: any;
+    constructor();
+    setStore(value: any): void;
+    getStore(): any;
 }

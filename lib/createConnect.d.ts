@@ -3,7 +3,9 @@ export declare const omitFunctions: (obj: any) => {};
 export default function createConnect(mapStoreToValues: any, store: any): (Component: any) => {
     new (props: any, context: any): {
         unmounted: boolean;
-        sub: any;
+        sub: {
+            dispose: Function;
+        };
         componentDidMount(): void;
         componentWillUnmount(): void;
         render(): JSX.Element;

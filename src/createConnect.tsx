@@ -11,6 +11,9 @@ export const omitFunctions = (obj) => {
 export default function createConnect (mapStoreToValues, store) {
   return function connect (Component) {
     return class extends React.Component {
+      unmounted: boolean
+      sub: { dispose: Function }
+
       constructor (props, context) {
         super(props, context)
 

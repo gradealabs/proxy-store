@@ -12,7 +12,9 @@
     ]
   },
   "include": [
-    "./src/*",
-    "./file.ts"
+    "./src/*"
+  ],
+  "exclude": [
+    "./src/*.test.*"
   ]
 }

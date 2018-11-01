@@ -1,25 +1,26 @@
 import * as assert from 'assert'
+import * as isEqual from 'lodash.isequal'
 import createStore, { persistStore, retrievePersistedStore } from './createStore'
 
 const makeStorageEngine = () => {
-  let backingStore = {}
+  let backingStore = null
   return {
-    setItem: (key, value) => backingStore[key] = value,
-    getItem: key => backingStore[key]
+    setStore: store => (backingStore = store),
+    getStore: () => backingStore
   }
 }
 
 describe('createStore', function () {
   describe('persistence', function () {
-    it('should write as json stringified', function () {
+    it('should persist the store', function () {
       const storageEngine = makeStorageEngine()
       const store = { test: 1 }
 
       persistStore(storageEngine, store)
-      assert.strictEqual(storageEngine.getItem('store'), JSON.stringify(store))
+      assert.ok(isEqual(storageEngine.getStore(), store))
     })
 
-    it('should read back store', function () {
+    it('should read back persisted store', function () {
       const storageEngine = makeStorageEngine()
       const store = { test: 1 }
 
@@ -70,7 +71,7 @@ describe('createStore', function () {
 
     it('should create a store that can get', function () {
       const storageEngine = makeStorageEngine()
-      storageEngine.setItem('store', JSON.stringify({ test: 1 }))
+      storageEngine.setStore({ test: 1 })
       const store = createStore(storageEngine)
       assert.strictEqual(store.get('test'), 1)
     })
@@ -80,7 +81,7 @@ describe('createStore', function () {
       const store = createStore(storageEngine)
 
       store.subscribe(() => {
-        assert.strictEqual(storageEngine.getItem('store'), JSON.stringify({ test: 1 }))
+        assert.ok(isEqual(storageEngine.getStore(), { test: 1 }))
         done()
       })
 
@@ -93,7 +94,7 @@ describe('createStore', function () {
       let subSpy = null
 
       subSpy = store.subscribe(() => {
-        assert.strictEqual(storageEngine.getItem('store'), JSON.stringify({ test: 1 }))
+        assert.ok(isEqual(storageEngine.getStore(), { test: 1 }))
         subSpy.dispose()
 
         subSpy = store.subscribe(() => {
@@ -108,12 +109,12 @@ describe('createStore', function () {
 
     it('should create a store that can delete and publish', function (done) {
       const storageEngine = makeStorageEngine()
-      storageEngine.setItem('store', JSON.stringify({ test: 1, other: 2 }))
+      storageEngine.setStore({ test: 1, other: 2 })
       const store = createStore(storageEngine)
       let subSpy = null
 
       subSpy = store.subscribe(() => {
-        assert.strictEqual(storageEngine.getItem('store'), JSON.stringify({ other: 2 }))
+        assert.ok(isEqual(storageEngine.getStore(), { other: 2 }))
         subSpy.dispose()
         done()
       })

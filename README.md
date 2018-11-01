@@ -1,8 +1,10 @@
-# Store HOCs 3.1.5
+# Store HOCs 4.0.0
 
-**Supports React 16.3+ only. For < 16.3, use [v2.0.3](https://github.com/gradealabs/store-hocs/releases/tag/v2.0.3)**
+**Supports React 16.3+ only**
 
-Store HOCs allows you to store data in an object to be used across components in a similar way to Redux but without the ceremony. The store is completely ad-hoc and you are meant to map the store object to props when used.
+Store HOCs allows you to read and write from shared state across components in a similar way to Redux but without the ceremony. The store is completely ad-hoc and you are meant to map the store object to props when used.
+
+An important design goal of Store HOCs is that it should be trivial to change _where_ state is stored. By using `withMemoryStore`, your state will be persisted to memory. If you wish to persist state across page reloads, you may wish to use `withLocalStore`, without requiring any changes to your own code. You could potentially store the state remotely via a network request, or perhaps even in the query string. Store HOCs is fully extensible and also provides many examples of alterative storage engines.
 
 ## Quick Start
 
@@ -84,7 +86,7 @@ There are other HOC helpers available that are backed by different storage engin
 
 ### Custom store
 
-`withMemoryStore` uses an instance of `MemoryStorage` (which shares much of the same API as `window.localStorage` and `window.sessionStorage`), and as such, anytime `withMemoryStore` is used in your application, it is using the same store instance across the board.
+`withMemoryStore` uses an instance of `MemoryStorage`, and as such, anytime `withMemoryStore` is used in your application, it is using the same store instance across the board.
 
 Here is an example of how to create your own HOC that uses its own storage engine. It is almost the same as the memory store implemented in this library:
 
@@ -95,15 +97,12 @@ import { createStore } from '@gradealabs/store-hocs'
 
 // the storageEngine API requires `setItem`, `getItem`, and `removeItem`
 const myStorageEngine = {
-  data: {},
-  setItem (key, value) {
-    this.data[key] = value
+  store: {},
+  setStore (store) {
+    this.store = store
   },
-  getItem (key) {
-    return this.data[key]
-  },
-  removeItem (key) {
-    delete this.data[key]
+  getStore () {
+    return this.store
   }
 }
 
@@ -123,7 +122,7 @@ export default function withCustomStore (mapStoreToValues) {
 
 ### Async store
 
-Asynchronous stores are supported via `createAsyncStore`. The store will be initially empty, but a `pending()` function will be available on the store so that you can choose to show a spinner during the initial load of the store.
+Asynchronous stores are supported via `createAsyncStore`. The store will initially be empty, but a `pending()` function will be available on the store so that you can choose to show a spinner during the initial load of the store.
 
 Below is an example of a custom async store that leverages React Native's `AsyncStorage`:
 
@@ -134,50 +133,48 @@ import { createAsyncStore } from '@gradealabs/store-hocs'
 import { AsyncStorage } from 'react-native'
 
 class AsyncStorageAdapter {
-  setItem (key, value) {
-    return AsyncStorage.setItem(key, value)
+  setStore (store) {
+    let payload
+
+    try {
+      payload = JSON.stringify(store)
+    } catch (e) {
+      payload = null
+    }
+
+    return AsyncStorage.setItem('store', payload)
   }
 
-  getItem (key) {
-    return AsyncStorage.getItem(key)
-  }
+  getStore () {
+    const payload = AsyncStorage.getItem('store')
 
-  removeItem (key) {
-    return AsyncStorage.removeItem(key)
+    try {
+      return JSON.parse(payload)
+    } catch (e) {
+      return null
+    }
   }
 }
 
 export default createAsyncStore(new AsyncStorageAdapter())
 ```
 
-Alternatively, since AsyncStorage already shares the correct API (setItem,
-getItem, and removeItem), we could replace `asyncStore.js` with:
-
-```javascript
-import { createAsyncStore } from '@gradealabs/store-hocs'
-import { AsyncStorage } from 'react-native'
-
-export default createAsyncStore(AsyncStorage)
-```
-
-And if you happen to be using Expo, an example of using `SecureStore` could look
+If you happen to be using Expo, an example of using `SecureStore` could look
 like this:
+
+#### `asyncStore.js`
 
 ```javascript
 import { createAsyncStore } from '@gradealabs/store-hocs'
 import { SecureStore } from 'expo'
 
 class AsyncStorageAdapter {
-  setItem (key, value) {
-    return SecureStore.setItemAsync(key, value)
+  setStore (store) {
+    return SecureStore.setItemAsync('store', store)
   }
 
-  getItem (key) {
-    return SecureStore.getItemAsync(key)
-  }
-
-  removeItem (key) {
-    return SecureStore.deleteItemAsync(key)
+  getStore () {
+    return SecureStore.getItemAsync('store')
   }
 }
 
@@ -232,25 +229,85 @@ export default withAsyncStore(store => {
 })(Widget)
 ```
 
-## API
+### Other useful stores
 
-### `withMemoryStore`
+You can easily store state in the query string in this manner:
 
-    withMemoryStore(
-      mapStoreToValues: function
-    )(Component: ReactClass)
+#### `queryStore.js`
 
-### `withSessionStore`
+```javascript
+import { createStore } from '@gradealabs/store-hocs'
+import queryString from 'query-string'
+import isEqual from 'lodash.isequal'
+import createBrowserHistory from 'history/createBrowserHistory'
 
-    withSessionStore(
-      mapStoreToValues: function
-    )(Component: ReactClass)
+const browserHistory = createBrowserHistory()
 
-### `withLocalStore`
+const queryStorageEngine = {
+  setStore (store) {
+    const oldQuery = queryString.parse(browserHistory.location.search)
+    const query = Object.assign({}, oldQuery, store || {})
 
-    withLocalStore(
-      mapStoreToValues: function
-    )(Component: ReactClass)
+    if (isEqual(oldQuery, query)) {
+      return
+    }
+
+    const href = `${browserHistory.location.pathname}?${queryString.stringify(query)}`
+
+    browserHistory.push(href)
+  },
+  getStore () {
+    return typeof browserHistory.location !== 'undefined'
+      ? queryString.parse(browserHistory.location.search)
+      : {}
+  }
+}
+
+export default createStore(queryStorageEngine)
+```
+
+#### `withQueryStore.js`
+
+```javascript
+import { createConnect } from '@gradealabs/store-hocs'
+import queryStore from './queryStore'
+
+export default function withQueryStore (mapStoreToValues) {
+  return createConnect(mapStoreToValues, queryStore)
+}
+```
+
+#### `Widget.js`
+
+```javascript
+import React from 'react'
+import withQueryStore from './withQueryStore'
+
+class Widget extends React.PureComponent {
+  render () {
+    const { items, addItem } = this.props
+
+    return (
+      <div>
+        <h1>Random numbers:</h1>
+        <ul>
+          {items.map((value, index) => <li key={index}>{value}</li>)}
+        </ul>
+        <button onClick={() => addItem(Math.random())}>Add random number</button>
+      </div>
+    )
+  }
+}
+
+export default withQueryStore(store => {
+  return {
+    items: store.get('items') || [],
+    addItem: value => {
+      store.set('items', [ ...store.get('items') || [], value ]) // important to make a copy when using PureComponent
+    }
+  }
+})(Widget)
+```
 
 ## Building
 
@@ -260,7 +317,7 @@ To build the source
 
 ## Testing
 
-Unit tests are expected to be colocated next to the module/file they are testing and have the following suffix `.test.js`.
+Unit tests are expected to be colocated next to the module/file they are testing and have the following suffix `.test.ts(x)`.
 
 To run unit tests through [mocha](http://mochajs.org/):
 

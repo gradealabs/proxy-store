@@ -1,26 +1,17 @@
 import * as assert from 'assert'
+import * as isEqual from 'lodash.isequal'
 import createAsyncStore, { persistStore, retrievePersistedStore } from './createAsyncStore'
 
 const makeAsyncStorageEngine = () => {
-  let backingStore = {}
+  let backingStore = null
   return {
-    setItem: (key, value) => Promise.resolve(backingStore[key] = value),
-    getItem: key => Promise.resolve(backingStore[key])
+    setStore: (store) => Promise.resolve(backingStore = store),
+    getStore: () => Promise.resolve(backingStore)
   }
 }
 
 describe('createAsyncStore', function () {
   describe('persistence', function () {
-    it('should write as json stringified', function (done) {
-      const asyncStorageEngine = makeAsyncStorageEngine()
-      const store = { test: 1 }
-
-      persistStore(asyncStorageEngine, store)
-        .then(() => asyncStorageEngine.getItem('store'))
-        .then(result => assert.strictEqual(result, JSON.stringify(store)))
-        .then(done, done)
-    })
-
     it('should read back store', function (done) {
       const asyncStorageEngine = makeAsyncStorageEngine()
       const store = { test: 1 }
@@ -65,7 +56,7 @@ describe('createAsyncStore', function () {
 
     it('should create a store that can get', function (done) {
       const asyncStorageEngine = makeAsyncStorageEngine()
-      asyncStorageEngine.setItem('store', JSON.stringify({ test: 1 }))
+      asyncStorageEngine.setStore({ test: 1 })
         .then(() => {
           const store = createAsyncStore(asyncStorageEngine)
 
@@ -89,8 +80,8 @@ describe('createAsyncStore', function () {
           pendingHandle.dispose()
 
           store.subscribe(() => {
-            asyncStorageEngine.getItem('store')
-              .then(result => assert.strictEqual(result, JSON.stringify({ test: 1 })))
+            asyncStorageEngine.getStore()
+              .then(result => assert.ok(isEqual(result, { test: 1 })))
               .then(done, done)
           })
 
@@ -109,8 +100,8 @@ describe('createAsyncStore', function () {
           pendingHandle.dispose()
 
           subSpy = store.subscribe(() => {
-            asyncStorageEngine.getItem('store')
-              .then(result => assert.strictEqual(result, JSON.stringify({ test: 1 })))
+            asyncStorageEngine.getStore()
+              .then(result => assert.ok(isEqual(result, { test: 1 })))
               .then(() => subSpy.dispose())
               .then(() => {
                 subSpy = store.subscribe(() => {
@@ -128,7 +119,7 @@ describe('createAsyncStore', function () {
 
     it('should create a store that can delete and publish', function (done) {
       const asyncStorageEngine = makeAsyncStorageEngine()
-      asyncStorageEngine.setItem('store', JSON.stringify({ test: 1, other: 2 }))
+      asyncStorageEngine.setStore({ test: 1, other: 2 })
         .then(() => {
           const store = createAsyncStore(asyncStorageEngine)
 
@@ -138,8 +129,8 @@ describe('createAsyncStore', function () {
             }
 
             store.subscribe(() => {
-              asyncStorageEngine.getItem('store')
-                .then(result => assert.strictEqual(result, JSON.stringify({ other: 2 })))
+              asyncStorageEngine.getStore()
+                .then(result => assert.ok(isEqual(result, { other: 2 })))
                 .then(done, done)
             })
 
