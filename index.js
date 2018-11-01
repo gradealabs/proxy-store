@@ -6,6 +6,7 @@ module.exports = {
   localStorageStore: require('./lib/localStorageStore').default,
   MemoryStorage: require('./lib/MemoryStorage').default,
   memoryStorageStore: require('./lib/memoryStorageStore').default,
+  publish: require('./lib/publish').default,
   SessionStorage: require('./lib/SessionStorage').default,
   sessionStorageStore: require('./lib/sessionStorageStore').default,
   withLocalStore: require('./lib/withLocalStore').default,
