@@ -11,12 +11,11 @@ export const omitFunctions = (obj) => {
 export default function createConnect (mapStoreToValues, store) {
   return function connect (Component) {
     return class extends React.Component {
-      unmounted = false
-      sub = null
-
       constructor (props, context) {
         super(props, context)
 
+        this.unmounted = false
+        this.sub = null
         this.state = mapStoreToValues(store, props)
       }
 
