@@ -7,9 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [4.0.0] - 2014-08-09
+## [4.0.1] - 2018-11-05
+### Changed
+- Fixed issue where localStorage and sessionStorage were attempted to be loaded in incompatible environments
+
+## [4.0.0] - 2018-11-01
 ### Added
-- Adde example withQueryStore in documentation
+- Added example withQueryStore in documentation
 ### Changed
 - BREAKING: the StorageEngine API no longer expects stringified JSON. Instead, the interface should consist of two methods: setStore(store) and getStore()
 ### Removed

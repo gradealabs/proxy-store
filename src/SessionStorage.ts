@@ -1,4 +1,14 @@
 export default class SessionStorage {
+  constructor () {
+    if (!window) {
+      throw new Error('SessionStorage requires window object in scope')
+    }
+
+    if (!window.sessionStorage) {
+      throw new Error('SessionStorage requires window.sessionStorage object in scope')
+    }
+  }
+
   setStore (store) {
     let payload
 

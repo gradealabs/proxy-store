@@ -1,4 +1,14 @@
 export default class LocalStorage {
+  constructor () {
+    if (!window) {
+      throw new Error('LocalStorage requires window object in scope')
+    }
+
+    if (!window.localStorage) {
+      throw new Error('LocalStorage requires window.localStorage object in scope')
+    }
+  }
+
   setStore (store) {
     let payload
 
