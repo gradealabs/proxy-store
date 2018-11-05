@@ -170,11 +170,25 @@ import { SecureStore } from 'expo'
 
 class AsyncStorageAdapter {
   setStore (store) {
-    return SecureStore.setItemAsync('store', store)
+    let payload
+
+    try {
+      payload = JSON.stringify(store)
+    } catch (e) {
+      payload = null
+    }
+
+    return SecureStore.setItemAsync('store', payload)
   }
 
   getStore () {
-    return SecureStore.getItemAsync('store')
+    const payload = SecureStore.getItemAsync('store')
+
+    try {
+      return JSON.parse(payload)
+    } catch (e) {
+      return null
+    }
   }
 }
 
