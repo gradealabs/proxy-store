@@ -1,4 +1,4 @@
-# Store HOCs 4.0.0
+# Store HOCs 4.0.1
 
 **Supports React 16.3+ only**
 
