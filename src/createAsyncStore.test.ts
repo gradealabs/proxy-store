@@ -1,6 +1,6 @@
 import * as assert from 'assert'
 import * as isEqual from 'lodash.isequal'
-import createAsyncStore, { persistStore, retrievePersistedStore } from './createAsyncStore'
+import createAsyncStore, { writeStore, readStore } from './createAsyncStore'
 
 const makeAsyncStorageEngine = () => {
   let backingStore = null
@@ -16,14 +16,14 @@ describe('createAsyncStore', function () {
       const asyncStorageEngine = makeAsyncStorageEngine()
       const store = { test: 1 }
 
-      persistStore(asyncStorageEngine, store)
-        .then(() => retrievePersistedStore(asyncStorageEngine))
+      writeStore(asyncStorageEngine, store)
+        .then(() => readStore(asyncStorageEngine))
         .then(storeCopy => assert.deepStrictEqual(store, storeCopy))
         .then(done, done)
     })
 
-    it('retrieve should return undefined without a asyncStorageEngine', function (done) {
-      retrievePersistedStore(null)
+    it('readStore should return undefined without a asyncStorageEngine', function (done) {
+      readStore(null)
         .then(result => assert.strictEqual(result, undefined))
         .then(done, done)
     })

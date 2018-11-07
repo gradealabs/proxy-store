@@ -1,4 +1,4 @@
-# Store HOCs 4.0.1
+# Store HOCs 4.1.0
 
 **Supports React 16.3+ only**
 
@@ -274,6 +274,19 @@ const queryStorageEngine = {
     return typeof browserHistory.location !== 'undefined'
       ? queryString.parse(browserHistory.location.search)
       : {}
+  },
+  // These optional methods allow the storageEngine to decide how to read and
+  // write the store that is normally held in memory. Normally, getStore() is
+  // called only once on load, then manipulated in memory. setStore() is then
+  // only called on change to persist the store. But until we load again, the
+  // source of truth for the store is in memory.
+  // In this implementation, we don't store in memory, we choose to always
+  // read/write to/from the query string.
+  setCachedStore (store) {
+    this.setStore(store)
+  },
+  getCachedStore () {
+    return this.getStore()
   }
 }
 

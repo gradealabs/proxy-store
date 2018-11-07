@@ -1,6 +1,6 @@
 import * as assert from 'assert'
 import * as isEqual from 'lodash.isequal'
-import createStore, { persistStore, retrievePersistedStore } from './createStore'
+import createStore, { writeStore, readStore } from './createStore'
 
 const makeStorageEngine = () => {
   let backingStore = null
@@ -16,7 +16,7 @@ describe('createStore', function () {
       const storageEngine = makeStorageEngine()
       const store = { test: 1 }
 
-      persistStore(storageEngine, store)
+      writeStore(storageEngine, store)
       assert.ok(isEqual(storageEngine.getStore(), store))
     })
 
@@ -24,13 +24,13 @@ describe('createStore', function () {
       const storageEngine = makeStorageEngine()
       const store = { test: 1 }
 
-      persistStore(storageEngine, store)
-      const storeCopy = retrievePersistedStore(storageEngine)
+      writeStore(storageEngine, store)
+      const storeCopy = readStore(storageEngine)
       assert.deepStrictEqual(store, storeCopy)
     })
 
-    it('retrieve should return undefined without a storageEngine', function () {
-      assert.strictEqual(retrievePersistedStore(null), undefined)
+    it('readStore should return undefined without a storageEngine', function () {
+      assert.strictEqual(readStore(null), undefined)
     })
   })
 

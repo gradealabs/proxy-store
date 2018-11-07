@@ -23,6 +23,12 @@ const queryStorageEngine = {
     return typeof browserHistory.location !== 'undefined'
       ? queryString.parse(browserHistory.location.search)
       : {}
+  },
+  setCachedStore (store) {
+    this.setStore(store)
+  },
+  getCachedStore () {
+    return this.getStore()
   }
 }
 

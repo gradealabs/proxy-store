@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [4.1.0] - 2018-11-07
+### Added
+- Optional getCachedStore and setCachedStore methods on Storage Engines to allow the engine to decide how to manipulate the cached store
+### Changed
+- Instead of loading all persisted stores immediately, lazy-load them on demand
+
 ## [4.0.1] - 2018-11-05
 ### Changed
 - Fixed issue where localStorage and sessionStorage were attempted to be loaded in incompatible environments

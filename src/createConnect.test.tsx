@@ -73,7 +73,7 @@ const commonStoreIntegrationTests = (wording, makeStorageEngine, createStore) =>
       wrapper.update()  // required for `find` to have the most recent tree to search
       assert.strictEqual(wrapper.find('div').length, 0)
       done()
-    }, 0)
+    }, 1)
   })
 
   it(`should have 1 item divs on next tick (${wording})`, function (done) {
@@ -89,7 +89,7 @@ const commonStoreIntegrationTests = (wording, makeStorageEngine, createStore) =>
       wrapper.update()  // required for `find` to have the most recent tree to search
       assert.strictEqual(wrapper.find('div').length, 1)
       done()
-    }, 0)
+    }, 1)
   })
 
   it(`should have 0 item divs and on next tick have 2 item divs (${wording})`, function (done) {
@@ -107,7 +107,7 @@ const commonStoreIntegrationTests = (wording, makeStorageEngine, createStore) =>
       wrapper.update()  // required for `find` to have the most recent tree to search
       assert.strictEqual(wrapper.find('div').length, 2)
       done()
-    }, 0)
+    }, 1)
   })
 
   it(`should render again if setting value to a different value in next tick (${wording})`, function (done) {
@@ -139,7 +139,7 @@ const commonStoreIntegrationTests = (wording, makeStorageEngine, createStore) =>
       assert.strictEqual(Widget.prototype.render['callCount'], expectedRenderCount)
 
       done()
-    }, 0)
+    }, 2)
   })
 
   it(`should render again if setting value to same value again in next tick (${wording})`, function (done) {
@@ -170,7 +170,7 @@ const commonStoreIntegrationTests = (wording, makeStorageEngine, createStore) =>
       assert.strictEqual(Widget.prototype.render['callCount'], expectedRenderCount)
 
       done()
-    }, 0)
+    }, 2)
   })
 
   it(`should render again if setting value to a different value in same tick (${wording})`, function () {
@@ -241,7 +241,7 @@ describe('createConnect', function () {
         wrapper.update()
         assert.strictEqual(wrapper.childAt(0).props().pending, false)
         done()
-      }, 0)
+      }, 2)
     })
   })
 })

@@ -1,6 +1,6 @@
 {
   "name": "@gradealabs/store-hocs",
-  "version": "4.0.1",
+  "version": "4.1.0",
   "description": "Stores as higher-order components",
   "main": "index.js",
   "directories": {
