@@ -1,6 +1,5 @@
 import * as React from 'react';
-export declare const omitFunctions: (obj: any) => {};
-export default function createConnect(mapStoreToValues: any, store: any): (Component: any) => {
+export default function createConnect(mapStoreToValues: any, handlers: any, store: any): (Component: any) => {
     new (props: any, context: any): {
         unmounted: boolean;
         sub: {

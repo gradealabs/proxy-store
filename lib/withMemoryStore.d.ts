@@ -1,5 +1,5 @@
 import * as React from 'react';
-export default function withMemoryStorage(mapStoreToValues: any): (Component: any) => {
+export default function withMemoryStorage(mapStoreToValues: any, handlers: any): (Component: any) => {
     new (props: any, context: any): {
         unmounted: boolean;
         sub: {
