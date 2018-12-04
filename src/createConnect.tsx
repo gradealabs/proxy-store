@@ -6,12 +6,11 @@ export default function createConnect (mapStoreToValues, handlers, store) {
 
   const _mapStoreToValues = mapStoreToValuesOmitted ? () => ({}) : mapStoreToValues
   const _handlers = mapStoreToValuesOmitted ? mapStoreToValues : (handlersOmitted ? {} : handlers)
-  const _store = mapStoreToValuesOmitted ? handlers : (handlersOmitted ? handlers : store)
 
   return function connect (Component) {
     const mapStoreToHandlers = props => {
       return Object.keys(_handlers).reduce(function (previous, handlerName) {
-        return Object.assign({}, previous, { [handlerName]: _handlers[handlerName](_store, props) })
+        return Object.assign({}, previous, { [handlerName]: _handlers[handlerName](store, props) })
       }, {})
     }
 
@@ -27,13 +26,13 @@ export default function createConnect (mapStoreToValues, handlers, store) {
 
         this.state = Object.assign(
           {},
-          _mapStoreToValues(_store, props),
+          _mapStoreToValues(store, props),
           mapStoreToHandlers(props)
         )
       }
 
       componentDidMount () {
-        this.sub = _store.subscribe(() => {
+        this.sub = store.subscribe(() => {
           if (this.unmounted) {
             return
           }
@@ -41,7 +40,7 @@ export default function createConnect (mapStoreToValues, handlers, store) {
           this.setState(Object.assign(
             {},
             this.state,
-            _mapStoreToValues(_store, this.props)
+            _mapStoreToValues(store, this.props)
           ))
         })
       }
@@ -50,7 +49,7 @@ export default function createConnect (mapStoreToValues, handlers, store) {
         return Object.assign(
           {},
           prevState,
-          _mapStoreToValues(_store, nextProps),
+          _mapStoreToValues(store, nextProps),
           mapStoreToHandlers(nextProps)
         )
       }
