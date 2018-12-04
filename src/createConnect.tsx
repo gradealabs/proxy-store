@@ -4,8 +4,8 @@ export default function createConnect (mapStoreToValues, handlers, store) {
   const mapStoreToValuesOmitted = typeof mapStoreToValues !== 'function' && typeof mapStoreToValues === 'object' && Object.keys(mapStoreToValues).length && store === undefined
   const handlersOmitted = typeof mapStoreToValues === 'function' && store === undefined
 
-  const _mapStoreToValues = mapStoreToValuesOmitted ? null : mapStoreToValues
-  const _handlers = mapStoreToValuesOmitted ? mapStoreToValues : (handlersOmitted ? null : handlers)
+  const _mapStoreToValues = mapStoreToValuesOmitted ? () => ({}) : mapStoreToValues
+  const _handlers = mapStoreToValuesOmitted ? mapStoreToValues : (handlersOmitted ? {} : handlers)
   const _store = mapStoreToValuesOmitted ? handlers : (handlersOmitted ? handlers : store)
 
   return function connect (Component) {
