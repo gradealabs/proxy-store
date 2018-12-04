@@ -1,10 +1,17 @@
 import * as React from 'react'
 
 export default function createConnect (mapStoreToValues, handlers, store) {
+  const mapStoreToValuesOmitted = typeof mapStoreToValues !== 'function' && typeof mapStoreToValues === 'object' && Object.keys(mapStoreToValues).length && store === undefined
+  const handlersOmitted = typeof mapStoreToValues === 'function' && store === undefined
+
+  const _mapStoreToValues = mapStoreToValuesOmitted ? null : mapStoreToValues
+  const _handlers = mapStoreToValuesOmitted ? mapStoreToValues : (handlersOmitted ? null : handlers)
+  const _store = mapStoreToValuesOmitted ? handlers : (handlersOmitted ? handlers : store)
+
   return function connect (Component) {
-    const mapStoreToHandlers = (store, props) => {
-      return Object.keys(handlers).reduce(function (previous, handlerName) {
-        return Object.assign({}, previous, { [handlerName]: handlers[handlerName](store, props) })
+    const mapStoreToHandlers = props => {
+      return Object.keys(_handlers).reduce(function (previous, handlerName) {
+        return Object.assign({}, previous, { [handlerName]: _handlers[handlerName](_store, props) })
       }, {})
     }
 
@@ -20,13 +27,13 @@ export default function createConnect (mapStoreToValues, handlers, store) {
 
         this.state = Object.assign(
           {},
-          mapStoreToValues(store, props),
-          mapStoreToHandlers(store, props)
+          _mapStoreToValues(_store, props),
+          mapStoreToHandlers(props)
         )
       }
 
       componentDidMount () {
-        this.sub = store.subscribe(() => {
+        this.sub = _store.subscribe(() => {
           if (this.unmounted) {
             return
           }
@@ -34,7 +41,7 @@ export default function createConnect (mapStoreToValues, handlers, store) {
           this.setState(Object.assign(
             {},
             this.state,
-            mapStoreToValues(store, this.props)
+            _mapStoreToValues(_store, this.props)
           ))
         })
       }
@@ -43,8 +50,8 @@ export default function createConnect (mapStoreToValues, handlers, store) {
         return Object.assign(
           {},
           prevState,
-          mapStoreToValues(store, nextProps),
-          mapStoreToHandlers(store, nextProps)
+          _mapStoreToValues(_store, nextProps),
+          mapStoreToHandlers(nextProps)
         )
       }
 
