@@ -1,8 +1,8 @@
 import * as React from 'react'
 
 export default function createConnect (mapStoreToValues, handlers, store) {
-  const mapStoreToValuesOmitted = typeof mapStoreToValues !== 'function' && typeof mapStoreToValues === 'object' && Object.keys(mapStoreToValues).length && store === undefined
-  const handlersOmitted = typeof mapStoreToValues === 'function' && store === undefined
+  const mapStoreToValuesOmitted = typeof mapStoreToValues !== 'function' && typeof mapStoreToValues === 'object' && Object.keys(mapStoreToValues).length && handlers === undefined
+  const handlersOmitted = typeof mapStoreToValues === 'function' && handlers === undefined
 
   const _mapStoreToValues = mapStoreToValuesOmitted ? () => ({}) : mapStoreToValues
   const _handlers = mapStoreToValuesOmitted ? mapStoreToValues : (handlersOmitted ? {} : handlers)
