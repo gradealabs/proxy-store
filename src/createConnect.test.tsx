@@ -9,8 +9,7 @@ import createStore from './createStore'
 import createAsyncStore from './createAsyncStore'
 
 const {
-  default: createConnect,
-  omitFunctions
+  default: createConnect
 } = require('./createConnect')
 
 Enzyme.configure({ adapter: new Adapter() })
@@ -200,27 +199,6 @@ const commonStoreIntegrationTests = (wording, makeStorageEngine, createStore) =>
 }
 
 describe('createConnect', function () {
-  describe('omitFunctions', function () {
-    it('should omit properties that are functions from object', function () {
-      const obj = {
-        test1: 1,
-        test2: true,
-        test3: function () {},
-        test4: 'test',
-        test5: function () {},
-        test6: NaN,
-        test7: undefined,
-        test8: null,
-        test9: Infinity
-      }
-
-      const objNoFuncs = omitFunctions(obj)
-      const objNoFuncsKeys = Object.keys(objNoFuncs)
-
-      assert.deepStrictEqual(['test1', 'test2', 'test4', 'test6', 'test7', 'test8', 'test9'], objNoFuncsKeys)
-    })
-  })
-
   describe('createStore integration', function () {
     commonStoreIntegrationTests('sync', makeStorageEngine, createStore)
   })

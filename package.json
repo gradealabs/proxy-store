@@ -1,6 +1,6 @@
 {
   "name": "@gradealabs/store-hocs",
-  "version": "4.1.0",
+  "version": "5.0.0",
   "description": "Stores as higher-order components",
   "main": "index.js",
   "directories": {
@@ -9,7 +9,7 @@
   "scripts": {
     "build": "tsc -p .",
     "prepublish": "tsc -p .",
-    "start": "parcel ./playground/index.html -p 8080",
+    "start": "parcel ./playground/index.html -p 8085",
     "test": "mocha --require jsdom-setup.js --require ts-node/register src/*.test.*"
   },
   "peerDependencies": {

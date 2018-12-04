@@ -1,4 +1,4 @@
-# Store HOCs 4.1.0
+# Store HOCs 5.0.0
 
 **Supports React 16.3+ only**
 
@@ -32,12 +32,13 @@ class Widget extends React.PureComponent {
   }
 }
 
-export default withMemoryStore(store => {
+export default withMemoryStore((store, props) => {
   return {
-    items: store.get('items') || [],
-    addItem: value => {
-      store.set('items', [ ...store.get('items') || [], value ]) // important to make a copy when using PureComponent
-    }
+    items: store.get('items') || []
+  }
+}, {
+  addItem: (store, props) => value => {
+    store.set('items', [ ...store.get('items') || [], value ]) // important to make a copy when using PureComponent
   }
 })(Widget)
 ```
@@ -52,12 +53,11 @@ For example:
 import { withMemoryStore } from '@gradealabs/store-hocs'
 
 export default function () {
-  return withMemoryStore(store => {
-    return {
-      items: store.get('items') || [],
-      addItem: value => {
-        store.set('items', [ ...store.get('items') || [], value ]) // important to make a copy when using PureComponent
-      }
+  return withMemoryStore((store, props) => ({
+    items: store.get('items') || []
+  }), {
+    addItem: (store, props) => value => {
+      store.set('items', [ ...store.get('items') || [], value ]) // important to make a copy when using PureComponent
     }
   })
 }
@@ -115,8 +115,8 @@ export default createStore(myStorageEngine)
 import { createConnect } from '@gradealabs/store-hocs'
 import customStore from './customStore'
 
-export default function withCustomStore (mapStoreToValues) {
-  return createConnect(mapStoreToValues, customStore)
+export default function withCustomStore (mapStoreToValues, handlers) {
+  return createConnect(mapStoreToValues, handlers, customStore)
 }
 ```
 
@@ -145,8 +145,8 @@ class AsyncStorageAdapter {
     return AsyncStorage.setItem('store', payload)
   }
 
-  getStore () {
-    const payload = AsyncStorage.getItem('store')
+  async getStore () {
+    const payload = await AsyncStorage.getItem('store')
 
     try {
       return JSON.parse(payload)
@@ -181,8 +181,8 @@ class AsyncStorageAdapter {
     return SecureStore.setItemAsync('store', payload)
   }
 
-  getStore () {
-    const payload = SecureStore.getItemAsync('store')
+  async getStore () {
+    const payload = await SecureStore.getItemAsync('store')
 
     try {
       return JSON.parse(payload)
@@ -201,8 +201,8 @@ export default createAsyncStore(new AsyncStorageAdapter())
 import { createConnect } from '@gradealabs/store-hocs'
 import asyncStore from './asyncStore'
 
-export default function withAsyncStore (mapStoreToValues) {
-  return createConnect(mapStoreToValues, asyncStore)
+export default function withAsyncStore (mapStoreToValues, handlers) {
+  return createConnect(mapStoreToValues, handlers, asyncStore)
 }
 ```
 
@@ -235,10 +235,11 @@ class Widget extends React.PureComponent {
 export default withAsyncStore(store => {
   return {
     loading: store.pending() || false,
-    items: store.get('items') || [],
-    addItem: value => {
-      store.set('items', [ ...store.get('items') || [], value ]) // important to make a copy when using PureComponent
-    }
+    items: store.get('items') || []
+  }
+}, {
+  addItem: store => value => {
+    store.set('items', [ ...store.get('items') || [], value ]) // important to make a copy when using PureComponent
   }
 })(Widget)
 ```
@@ -299,8 +300,8 @@ export default createStore(queryStorageEngine)
 import { createConnect } from '@gradealabs/store-hocs'
 import queryStore from './queryStore'
 
-export default function withQueryStore (mapStoreToValues) {
-  return createConnect(mapStoreToValues, queryStore)
+export default function withQueryStore (mapStoreToValues, handlers) {
+  return createConnect(mapStoreToValues, handlers, queryStore)
 }
 ```
 
@@ -328,10 +329,11 @@ class Widget extends React.PureComponent {
 
 export default withQueryStore(store => {
   return {
-    items: store.get('items') || [],
-    addItem: value => {
-      store.set('items', [ ...store.get('items') || [], value ]) // important to make a copy when using PureComponent
-    }
+    items: store.get('items') || []
+  }
+}, {
+  addItem: store => value => {
+    store.set('items', [ ...store.get('items') || [], value ]) // important to make a copy when using PureComponent
   }
 })(Widget)
 ```

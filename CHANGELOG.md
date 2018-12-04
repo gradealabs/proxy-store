@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Changed
+- BREAKING: createConnect requires an extra `handlers` parameter, and `mapStoreToValues` no longer omits functions, as it is now intended for values only
 
 ## [4.1.0] - 2018-11-07
 ### Added

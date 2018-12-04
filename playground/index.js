@@ -1,12 +1,14 @@
-// import withMemoryStore from '../src/withMemoryStore'
-import withQueryStore from './withQueryStore'
+import withMemoryStore from '../src/withMemoryStore'
+// import withQueryStore from './withQueryStore'
 
 class Widget extends React.PureComponent {
   render () {
-    const { items, addItem, removeItem } = this.props
+    const { items, addItem, removeItem, prefix, setPrefix } = this.props
 
     return (
       <div>
+        <h1>Prefix:</h1>
+        <input type='text' value={prefix} onChange={evt => setPrefix(evt.target.value)} />
         <h1>Random numbers:</h1>
         <button onClick={() => addItem(Math.floor(Math.random() * 1000))}>Add random number</button>
         <ul>
@@ -17,26 +19,42 @@ class Widget extends React.PureComponent {
   }
 }
 
-const withStore = withQueryStore // withMemoryStore
+// const withStore = withQueryStore
+const withStore = withMemoryStore
 
-const enhancedWidget = withStore(store => {
-  const getItems = () => {
+// withPrefix demonstrates how prop changes from higher-up will re-define the
+// handlers below so that these new props are scoped properly in the handlers
+function withPrefix (Component) {
+  return withStore(store => ({
+    prefix: store.get('prefix') || ''
+  }), {
+    setPrefix: store => prefix => {
+      store.set('prefix', prefix)
+    }
+  })(Component)
+}
+
+function withItems (Component) {
+  const getItems = store => {
     const items = store.get('items') || []
     return Array.isArray(items) ? items : [items]
   }
 
-  return {
-    items: getItems(),
-    addItem: value => {
-      const items = getItems()
-      store.set('items', [ ...items, value ])
+  return withStore(store => ({
+    items: getItems(store)
+  }), {
+    addItem: (store, props) => value => {
+      const items = getItems(store)
+      store.set('items', [ ...items, `${props.prefix}${value}` ])
     },
-    removeItem: index => {
-      const items = getItems()
+    removeItem: (store, props) => index => {
+      const items = getItems(store)
       store.set('items', items.filter((_, i) => i !== index))
     }
-  }
-})(Widget)
+  })(Component)
+}
+
+const enhancedWidget = withPrefix(withItems(Widget))
 
 ReactDOM.render(
   React.createElement(enhancedWidget, {}),

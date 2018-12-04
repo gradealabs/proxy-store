@@ -34,6 +34,6 @@ const queryStorageEngine = {
 
 const queryStore = createStore(queryStorageEngine)
 
-export default function withQueryStore (mapStoreToValues) {
-  return createConnect(mapStoreToValues, queryStore)
+export default function withQueryStore (mapStoreToValues, handlers) {
+  return createConnect(mapStoreToValues, handlers, queryStore)
 }

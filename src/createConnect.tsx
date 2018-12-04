@@ -1,15 +1,13 @@
 import * as React from 'react'
 
-export const omitFunctions = (obj) => {
-  let cleanObj = {}
-  Object.keys(obj)
-    .filter(key => typeof obj[key] !== 'function')
-    .forEach(key => (cleanObj[key] = obj[key]))
-  return cleanObj
-}
-
-export default function createConnect (mapStoreToValues, store) {
+export default function createConnect (mapStoreToValues, handlers, store) {
   return function connect (Component) {
+    const mapStoreToHandlers = (store, props) => {
+      return Object.keys(handlers).reduce(function (previous, handlerName) {
+        return Object.assign({}, previous, { [handlerName]: handlers[handlerName](store, props) })
+      }, {})
+    }
+
     return class extends React.Component {
       unmounted: boolean
       sub: { dispose: Function }
@@ -19,7 +17,12 @@ export default function createConnect (mapStoreToValues, store) {
 
         this.unmounted = false
         this.sub = null
-        this.state = mapStoreToValues(store, props)
+
+        this.state = Object.assign(
+          {},
+          mapStoreToValues(store, props),
+          mapStoreToHandlers(store, props)
+        )
       }
 
       componentDidMount () {
@@ -31,7 +34,7 @@ export default function createConnect (mapStoreToValues, store) {
           this.setState(Object.assign(
             {},
             this.state,
-            omitFunctions(mapStoreToValues(store, this.props))
+            mapStoreToValues(store, this.props)
           ))
         })
       }
@@ -40,7 +43,8 @@ export default function createConnect (mapStoreToValues, store) {
         return Object.assign(
           {},
           prevState,
-          omitFunctions(mapStoreToValues(store, nextProps))
+          mapStoreToValues(store, nextProps),
+          mapStoreToHandlers(store, nextProps)
         )
       }
 
