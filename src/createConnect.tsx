@@ -46,12 +46,17 @@ export default function createConnect (mapStoreToValues, handlers, store) {
       }
 
       static getDerivedStateFromProps (nextProps, prevState) {
-        return Object.assign(
-          {},
-          prevState,
-          _mapStoreToValues(store, nextProps),
-          mapStoreToHandlers(nextProps)
-        )
+        const hasChanged = Object.keys(nextProps).some(propName => nextProps[propName] !== prevState[propName])
+
+        if (hasChanged) {
+          return Object.assign(
+            {},
+            prevState,
+            mapStoreToHandlers(nextProps)
+          )
+        }
+
+        return null
       }
 
       componentWillUnmount () {
