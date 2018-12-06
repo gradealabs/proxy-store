@@ -37,11 +37,7 @@ export default function createConnect (mapStoreToValues, handlers, store) {
             return
           }
 
-          this.setState(Object.assign(
-            {},
-            this.state,
-            _mapStoreToValues(store, this.props)
-          ))
+          this.setState(_mapStoreToValues(store, this.props))
         })
       }
 
@@ -52,6 +48,7 @@ export default function createConnect (mapStoreToValues, handlers, store) {
           return Object.assign(
             {},
             prevState,
+            _mapStoreToValues(store, nextProps),
             mapStoreToHandlers(nextProps)
           )
         }
